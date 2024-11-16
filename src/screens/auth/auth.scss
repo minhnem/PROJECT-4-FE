@@ -1,0 +1,121 @@
+.auth__intro {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 40px 30px;
+    gap: 30px;
+    height: 100%;
+}
+
+.auth__content {
+    padding: 40px 25px;
+    background: #fff;
+}
+
+.auth__content-inner {
+    max-width: 460px;
+}
+
+.auth__link-logo {
+    display: flex;
+    justify-content: center;
+}
+
+.auth__heading {
+    margin: 50px 0 10px 0;
+    font-size: 30px;
+    font-weight: 500;
+    line-height: 44px;
+    text-align: center;
+}
+
+.auth__desc {
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 500;
+}
+
+.form__group {
+    display: flex;
+    align-items: center;
+    margin: 20px 0 2px 0;
+    padding: 12px;
+    height: 50px;
+    border: 1.5px solid #9E9DA8;
+    border-radius: 10px;
+    &:focus-within {
+        border-color: #1e2f7d;
+    }
+    &--error {
+        border-color: red;
+    }
+}
+
+.form__input {
+    flex: 1;
+    margin-right: 10px;
+    outline: none;
+    font-family: "Manrope", sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 26px;
+    &::placeholder {
+        color: #D2D1D6;
+    }
+}
+
+.form__icon-show {
+    margin-right: 5px;
+    width: 20px;
+    height: 20px;
+    &:hover {
+        cursor: pointer;
+    }
+}
+
+.form__error {
+    padding-left: 2px;
+    font-weight: 600;
+    color: rgb(255, 17, 0);
+}
+
+.auth__link {
+    margin:20px 0 40px 0;
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 22px;
+    color: #0071DC;
+}
+
+.auth__btn {
+    padding: 12px 0;
+    width: 100%;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 26px;
+    border-radius: 10px;
+    border: 1px solid #D2D1D6;
+    &--gmail {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+}
+
+.auth__line {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.auth__link-signin {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 26px;
+    color: #0071DC;
+}
