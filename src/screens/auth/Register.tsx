@@ -8,29 +8,44 @@ import iconGmail from "../../assets/icons/icon-gmail.svg";
 import intro from "../../assets/img/intro.svg";
 import { FaRegEye } from "react-icons/fa6";
 import { FaRegEyeSlash } from "react-icons/fa6";
+import { FaRegUser } from "react-icons/fa";
+import { HiOutlineMail } from "react-icons/hi";
+import { FiLock } from "react-icons/fi";
+import handleAPI from '../../apis/handleAPI';
 
 type errors = {
   email?: string;
   password?: string;
-  cfPassword?: string
+  userName?: string
 }
-
+//sửa
 const Register = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [errors, setErrors] = useState<errors>({});
   const [touched, setTouched] = useState({
+    userName: false,
     email: false,
     password: false,
-    confirmPassword: false,
   });
 
+  const inputUserNameRef = useRef<HTMLInputElement>(null);
   const inputEmailRef = useRef<HTMLInputElement>(null);
   const inputPasswordRef = useRef<HTMLInputElement>(null);
-  const inputCfPasswordRef = useRef<HTMLInputElement>(null);
 
   const navigate = useNavigate()
 
-  let validateErrors: { email?: string; password?: string; cfPassword?: string }  = {};
+  let validateErrors: { email?: string; password?: string; userName?: string } = {};
+
+  const validateUserName = () => {
+    const userName = inputUserNameRef.current?.value || ""
+    if (/[^a-zA-Z0-9@._\s-]/.test(userName)) {
+      validateErrors.userName = "Tên người dùng không được chứa kí tự đực biệt.";
+    } else if ( userName.trim() === "" ){
+      validateErrors.userName = "Tên người dùng không được bỏ trống.";
+    } else {
+      delete validateErrors.userName;
+    }
+  };
 
   const validateEmail = () => {
     const email = inputEmailRef.current?.value || ""
@@ -54,25 +69,13 @@ const Register = () => {
     }
   };
 
-  const validateConfirmPassWord = () => {
-    const password = inputPasswordRef.current?.value || ""
-    const cfPasswword = inputCfPasswordRef.current?.value || ""
-    if (
-      cfPasswword !== password || cfPasswword === ""
-    ) {
-      validateErrors.cfPassword = "Mật khẩu không khớp.";
-    } else {
-      delete validateErrors.cfPassword;
-    }
-  };
-
   const handleTouched = (fail: string) => {
     setTouched((prev) => ({ ...prev, [fail]: true }));
     validateErrors = { ...errors };
 
+    if (fail === "userName") validateUserName();
     if (fail === "email") validateEmail();
     if (fail === "password") validatePassword();
-    if (fail === "confirmPassword") validateConfirmPassWord();
     setErrors(validateErrors);
   };
 
@@ -82,12 +85,24 @@ const Register = () => {
   };
 
 
-  const handleSignup = (e: React.FormEvent<HTMLButtonElement>) => {
+  const handleSignup = async (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    validateUserName();
     validateEmail();
     validatePassword();
-    validateConfirmPassWord();
     setErrors(validateErrors);
+    if (Object.keys(errors).length === 0) {
+      const userName = inputUserNameRef.current?.value
+      const email = inputEmailRef.current?.value
+      const password = inputPasswordRef.current?.value
+      const values = { userName: userName, email: email, password: password  }
+      try {
+        const res = await handleAPI("/auth/register", values, "post")
+        console.log(res);
+      } catch (error) {
+        console.log(error);
+      }
+    }
   };
 
   return (
@@ -111,10 +126,29 @@ const Register = () => {
             Hãy đăng ký tài khoản và đến với những sản phẩm của chúng tôi.
           </p>
           <form action="" className="form auth__form">
+
             <div
-              className={`form__group ${
-                touched.email && errors.email ? "form__group--error" : ""
-              }`}
+              className={`form__group ${touched.userName && errors.userName
+                  ? "form__group--error"
+                  : ""
+                }`}
+            >
+              <input
+                ref={inputUserNameRef}
+                type="text"
+                placeholder="Tên người dùng"
+                className="form__input"
+                onBlur={() => handleTouched("userName")}
+              />
+              <FaRegUser className="form__icon-show"/>
+            </div>
+            {errors.userName && (
+              <p className="form__error">{errors.userName}</p>
+            )}
+
+            <div
+              className={`form__group ${touched.email && errors.email ? "form__group--error" : ""
+                }`}
             >
               <input
                 ref={inputEmailRef}
@@ -123,13 +157,13 @@ const Register = () => {
                 className="form__input"
                 onBlur={() => handleTouched("email")}
               />
-              <img src={iconEmail} alt="" className="form__icon" />
+              <HiOutlineMail className="form__icon-show"/>
             </div>
             {errors.email && <p className="form__error">{errors.email}</p>}
+
             <div
-              className={`form__group ${
-                touched.password && errors.password ? "form__group--error" : ""
-              }`}
+              className={`form__group ${touched.password && errors.password ? "form__group--error" : ""
+                }`}
             >
               <input
                 ref={inputPasswordRef}
@@ -149,41 +183,12 @@ const Register = () => {
                   onClick={() => handleShow()}
                 />
               )}
-              <img src={iconPassword} alt="" className="form__icon" />
+              <FiLock className="form__icon-show"/>
             </div>
             {errors.password && (
               <p className="form__error">{errors.password}</p>
             )}
-            <div
-              className={`form__group ${
-                touched.confirmPassword && errors.cfPassword
-                  ? "form__group--error"
-                  : ""
-              }`}
-            >
-              <input
-                ref={inputCfPasswordRef}
-                type={showPassword ? "text" : "password"}
-                placeholder="Xác nhận mật khẩu"
-                className="form__input"
-                onBlur={() => handleTouched("confirmPassword")}
-              />
-              {showPassword ? (
-                <FaRegEye
-                  className="form__icon-show"
-                  onClick={() => handleShow()}
-                />
-              ) : (
-                <FaRegEyeSlash
-                  className="form__icon-show"
-                  onClick={() => handleShow()}
-                />
-              )}
-              <img src={iconPassword} alt="" className="form__icon" />
-            </div>
-            {errors.cfPassword && (
-              <p className="form__error">{errors.cfPassword}</p>
-            )}
+
             <a href="" className="auth__link block text-end">
               Quên mật khẩu
             </a>
