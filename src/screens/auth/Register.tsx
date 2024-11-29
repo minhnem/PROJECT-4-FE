@@ -2,8 +2,6 @@ import React, { useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
 import "./auth.scss"
 import logo from "../../assets/img/Logo2.png"
-import iconEmail from "../../assets/icons/icon-email.svg";
-import iconPassword from "../../assets/icons/icon-password.svg";
 import iconGmail from "../../assets/icons/icon-gmail.svg";
 import intro from "../../assets/img/intro.svg";
 import { FaRegEye } from "react-icons/fa6";
@@ -12,14 +10,19 @@ import { FaRegUser } from "react-icons/fa";
 import { HiOutlineMail } from "react-icons/hi";
 import { FiLock } from "react-icons/fi";
 import handleAPI from '../../apis/handleAPI';
+import { useDispatch } from 'react-redux';
+import { addAuth } from '../../redux/authReducer';
+import { localDataNames } from '../../constants/appInfos';
+import { message } from 'antd';
 
 type errors = {
   email?: string;
   password?: string;
   userName?: string
 }
-//sửa
+
 const Register = () => {
+  const [isRemember, setIsRemember] = useState(false)
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [errors, setErrors] = useState<errors>({});
   const [touched, setTouched] = useState({
@@ -28,11 +31,11 @@ const Register = () => {
     password: false,
   });
 
+  const dispatch = useDispatch()
+
   const inputUserNameRef = useRef<HTMLInputElement>(null);
   const inputEmailRef = useRef<HTMLInputElement>(null);
   const inputPasswordRef = useRef<HTMLInputElement>(null);
-
-  const navigate = useNavigate()
 
   let validateErrors: { email?: string; password?: string; userName?: string } = {};
 
@@ -40,7 +43,7 @@ const Register = () => {
     const userName = inputUserNameRef.current?.value || ""
     if (/[^a-zA-Z0-9@._\s-]/.test(userName)) {
       validateErrors.userName = "Tên người dùng không được chứa kí tự đực biệt.";
-    } else if ( userName.trim() === "" ){
+    } else if (userName.trim() === "") {
       validateErrors.userName = "Tên người dùng không được bỏ trống.";
     } else {
       delete validateErrors.userName;
@@ -79,7 +82,6 @@ const Register = () => {
     setErrors(validateErrors);
   };
 
-  //show password
   const handleShow = () => {
     setShowPassword(!showPassword);
   };
@@ -95,11 +97,16 @@ const Register = () => {
       const userName = inputUserNameRef.current?.value
       const email = inputEmailRef.current?.value
       const password = inputPasswordRef.current?.value
-      const values = { userName: userName, email: email, password: password  }
+      const values = { userName: userName, email: email, password: password }
       try {
-        const res = await handleAPI("/auth/register", values, "post")
-        console.log(res);
-      } catch (error) {
+        const res: any = await handleAPI("/auth/register", values, "post")
+        message.success(res.message)
+        res && dispatch(addAuth(res.data))
+        if (isRemember) {
+          localStorage.setItem(localDataNames.authData, JSON.stringify(res.data))
+        }
+      } catch (error: any) {
+        message.error(error.message)
         console.log(error);
       }
     }
@@ -129,8 +136,8 @@ const Register = () => {
 
             <div
               className={`form__group ${touched.userName && errors.userName
-                  ? "form__group--error"
-                  : ""
+                ? "form__group--error"
+                : ""
                 }`}
             >
               <input
@@ -140,7 +147,7 @@ const Register = () => {
                 className="form__input"
                 onBlur={() => handleTouched("userName")}
               />
-              <FaRegUser className="form__icon-show"/>
+              <FaRegUser className="form__icon-show" />
             </div>
             {errors.userName && (
               <p className="form__error">{errors.userName}</p>
@@ -157,7 +164,7 @@ const Register = () => {
                 className="form__input"
                 onBlur={() => handleTouched("email")}
               />
-              <HiOutlineMail className="form__icon-show"/>
+              <HiOutlineMail className="form__icon-show" />
             </div>
             {errors.email && <p className="form__error">{errors.email}</p>}
 
@@ -183,15 +190,19 @@ const Register = () => {
                   onClick={() => handleShow()}
                 />
               )}
-              <FiLock className="form__icon-show"/>
+              <FiLock className="form__icon-show" />
             </div>
             {errors.password && (
               <p className="form__error">{errors.password}</p>
             )}
 
-            <a href="" className="auth__link block text-end">
-              Quên mật khẩu
-            </a>
+            <div className='form__checkbox'>
+              <div className='form__line'>
+                <input type="checkbox" checked={isRemember} onChange={(e) => setIsRemember(e.target.checked)}/>
+                <span>Remember me</span>
+              </div>
+              <a href="#!" className='form__link'>Recovery Password</a>
+            </div>
             <button
               className="auth__btn mb-[20px] bg-[#FFD44D]"
               onClick={handleSignup}
@@ -205,7 +216,7 @@ const Register = () => {
           </form>
           <div className="auth__line">
             <p className="auth__desc">Bạn đã có tài khoản chưa?</p>
-            <Link to={"/Login"} className="auth__link-signin">
+            <Link to={"/login"} className="auth__link-signin">
               Đăng nhập
             </Link>
           </div>

@@ -7,8 +7,8 @@ const AuthRouter = () => {
   return (
     <BrowserRouter>
         <Routes>
-            <Route path='/' element={<Login/>}/>
-            <Route path='/register' element={<Register/>}/>
+            <Route path='/login' element={<Login/>}/>
+            <Route path='/' element={<Register/>}/>
         </Routes>
     </BrowserRouter>
   )

@@ -11,14 +11,14 @@ const axiosClient = axios.create({
 axiosClient.interceptors.request.use(async (config: any) => {
     config.headers = {
         Authorization: "",
-        Accept: "/application/json",
+        Accept: "application/json",
         ...config.headers
     }
     config.data
     return config
 })
 
-axios.interceptors.response.use((res) => {
+axiosClient.interceptors.response.use((res) => {
     if(res.data && res.status >= 200 && res.status < 300){
         return res.data
     }else {
