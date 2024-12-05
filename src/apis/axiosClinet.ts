@@ -1,7 +1,13 @@
 import axios from "axios";
 import queryString from "query-string";
+import { localDataNames } from "../constants/appInfos";
 
 const baseURL = "http://localhost:3001"
+
+const getAccessToken = () => {
+    const res = localStorage.getItem(localDataNames.authData)
+    return res ? JSON.parse(res).token : ""
+}
 
 const axiosClient = axios.create({
     baseURL,
@@ -9,13 +15,15 @@ const axiosClient = axios.create({
 })
 
 axiosClient.interceptors.request.use(async (config: any) => {
+    const accessToken = getAccessToken()
     config.headers = {
-        Authorization: "",
+        Authorization: accessToken ? `Bearer ${accessToken}` : "",
         Accept: "application/json",
         ...config.headers
     }
-    config.data
-    return config
+    console.log(config);
+    
+    return {...config, data: config.data ?? null}
 })
 
 axiosClient.interceptors.response.use((res) => {

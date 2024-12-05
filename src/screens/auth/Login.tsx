@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
-import "./auth.scss"
+import "../../assets/scss/auth.scss"
 import logo from "../../assets/img/Logo2.png"
 import iconGmail from "../../assets/icons/icon-gmail.svg";
 import intro from "../../assets/img/intro.svg";
@@ -85,7 +85,7 @@ const Login = () => {
     e.preventDefault();
     try {
       const result = await signInWithPopup(auth, provider)
-      if(result) {
+      if(result) {       
         const user = result.user
         if(user) {
           const data = {
@@ -97,9 +97,7 @@ const Login = () => {
             const res: any = await handleAPI("/auth/google-login", data, "post")
             message.success(res.message)
             dispatch(addAuth(res.data))
-            if(isRemember){
-              localStorage.setItem(localDataNames.authData, JSON.stringify(res.data))
-            }
+            localStorage.setItem(localDataNames.authData, JSON.stringify(res.data))
           } catch (error: any) {
             console.log(error);
             message.error(error.message)
@@ -221,7 +219,7 @@ const Login = () => {
           </form>
           <div className="auth__line">
             <p className="auth__desc">Bạn đã có tài khoản chưa?</p>
-            <Link to={"/"} className="auth__link-signin">
+            <Link to={"/register"} className="auth__link-signin">
               Đăng ký
             </Link>
           </div>

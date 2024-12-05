@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
-import "./auth.scss"
+import "../../assets/scss/auth.scss"
 import logo from "../../assets/img/Logo2.png"
 import iconGmail from "../../assets/icons/icon-gmail.svg";
 import intro from "../../assets/img/intro.svg";
@@ -14,6 +14,14 @@ import { useDispatch } from 'react-redux';
 import { addAuth } from '../../redux/authReducer';
 import { localDataNames } from '../../constants/appInfos';
 import { message } from 'antd';
+import { auth } from '../../firebase/firebaseConfig';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+
+const provider = new GoogleAuthProvider()
+provider.addScope('https://www.googleapis.com/auth/contacts.readonly')
+provider.setCustomParameters({
+    'login_hint': 'namtdvp10a6@gmail.com'
+});
 
 type errors = {
   email?: string;
@@ -85,6 +93,38 @@ const Register = () => {
   const handleShow = () => {
     setShowPassword(!showPassword);
   };
+
+  const handleLoginWithGoogle = async (e: React.FormEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    try {
+      const result = await signInWithPopup(auth, provider)
+      if(result) {
+        const user = result.user
+        if(user) {
+          const data = {
+            name: user.displayName,
+            email: user.email,
+            password: "12345"
+          }
+          try {
+            const res: any = await handleAPI("/auth/google-login", data, "post")
+            message.success(res.message)
+            dispatch(addAuth(res.data))
+            if(isRemember){
+              localStorage.setItem(localDataNames.authData, JSON.stringify(res.data))
+            }
+          } catch (error: any) {
+            console.log(error);
+            message.error(error.message)
+          }
+        }
+      }else {
+        console.log("can not login with google");
+      }
+    } catch (error) {
+      
+    } 
+  }
 
 
   const handleSignup = async (e: React.FormEvent<HTMLButtonElement>) => {
@@ -211,12 +251,12 @@ const Register = () => {
             </button>
             <button className="auth__btn mb-[50px] auth__btn--gmail">
               <img src={iconGmail} alt="" className="auth__icon-gmail" />
-              Đăng ký bằng Gmail
+              Đăng nhập bằng Gmail
             </button>
           </form>
           <div className="auth__line">
             <p className="auth__desc">Bạn đã có tài khoản chưa?</p>
-            <Link to={"/login"} className="auth__link-signin">
+            <Link to={"/"} className="auth__link-signin">
               Đăng nhập
             </Link>
           </div>
