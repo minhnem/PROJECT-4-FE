@@ -19,9 +19,7 @@ import { GoogleAuthProvider } from "firebase/auth";
 
 const provider = new GoogleAuthProvider()
 provider.addScope('https://www.googleapis.com/auth/contacts.readonly')
-provider.setCustomParameters({
-    'login_hint': 'namtdvp10a6@gmail.com'
-});
+
 
 type errors = {
   email?: string;
@@ -104,10 +102,10 @@ const Login = () => {
           }
         }
       }else {
-        console.log("can not login with google");
+        console.log("Không thể đăng nhập với Google")
       }
     } catch (error) {
-      
+      console.log(error)
     } 
   }
 

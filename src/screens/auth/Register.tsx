@@ -19,9 +19,7 @@ import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
 const provider = new GoogleAuthProvider()
 provider.addScope('https://www.googleapis.com/auth/contacts.readonly')
-provider.setCustomParameters({
-    'login_hint': 'namtdvp10a6@gmail.com'
-});
+
 
 type errors = {
   email?: string;
@@ -44,6 +42,8 @@ const Register = () => {
   const inputUserNameRef = useRef<HTMLInputElement>(null);
   const inputEmailRef = useRef<HTMLInputElement>(null);
   const inputPasswordRef = useRef<HTMLInputElement>(null);
+
+  const navigate = useNavigate()
 
   let validateErrors: { email?: string; password?: string; userName?: string } = {};
 
@@ -110,19 +110,18 @@ const Register = () => {
             const res: any = await handleAPI("/auth/google-login", data, "post")
             message.success(res.message)
             dispatch(addAuth(res.data))
-            if(isRemember){
-              localStorage.setItem(localDataNames.authData, JSON.stringify(res.data))
-            }
+            localStorage.setItem(localDataNames.authData, JSON.stringify(res.data))
+            navigate('/')
           } catch (error: any) {
             console.log(error);
             message.error(error.message)
           }
         }
       }else {
-        console.log("can not login with google");
+        console.log("Không thể đăng nhập với Google")
       }
     } catch (error) {
-      
+      console.log(error)
     } 
   }
 
@@ -249,7 +248,7 @@ const Register = () => {
             >
               Đăng ký
             </button>
-            <button className="auth__btn mb-[50px] auth__btn--gmail">
+            <button className="auth__btn mb-[50px] auth__btn--gmail" onClick={handleLoginWithGoogle}>
               <img src={iconGmail} alt="" className="auth__icon-gmail" />
               Đăng nhập bằng Gmail
             </button>

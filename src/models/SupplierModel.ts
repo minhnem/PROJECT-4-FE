@@ -4,6 +4,7 @@ export interface SupplierModel {
     product: string
     categories: any[]
     price: number
+    email: string
     contact: string
     isTaking: number
     photoUrl: string

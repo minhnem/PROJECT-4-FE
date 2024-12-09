@@ -1,10 +1,9 @@
 import { Avatar, Button, Form, Input, message, Modal, Select, Typography } from 'antd'
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { FaRegUser } from "react-icons/fa";
 import { colors } from '../constants/colors';
 import { uploadFile } from '../utils/uploadFile';
 import { replaceName } from '../utils/repalceName';
-import { wait } from '@testing-library/user-event/dist/utils';
 import handleAPI from '../apis/handleAPI';
 import { SupplierModel } from '../models/SupplierModel';
 
@@ -29,38 +28,47 @@ const ToogleSupplier = (props: Props) => {
 
   const [form] = Form.useForm()
 
+  useEffect(() => {
+    if (supplier) {
+      form.setFieldsValue(supplier)
+      setIsTaking(supplier.isTaking === 1 ? true : false)
+    }
+  }, [supplier])
+
   const addNewSupplier = async (values: any) => {
     setIsLoading(true)
-    const data: any = {} 
+    const data: any = {}
 
-    for(const i in values){
+    for (const i in values) {
       data[i] = values[i] ?? ''
     }
 
     data.price = values.price ? parseFloat(data.price) : 0
     data.isTaking = isTaking ? 1 : 0
 
-    if(file) {
+    if (file) {
       data.photoUrl = await uploadFile(file)
     }
-    
+
     data.slug = replaceName(values.name)
 
     try {
-      const res = await handleAPI("/supplier/add-new", data, "post")
-      message.success('Add Supplier Successfully')
+      const res: any = await handleAPI(`/supplier/${supplier ? `update?id=${supplier._id}` : 'add-new'}`, data, supplier ? 'put' : 'post')
+      message.success(res.message)
       console.log(res.data);
       onAddNew(res.data)
       handleClose()
     } catch (error) {
       console.log(error)
-    }finally{
+    } finally {
       setIsLoading(false)
     }
   }
 
   const handleClose = () => {
     form.resetFields()
+    setFile(undefined)
+    setIsTaking(undefined)
     onClose()
   }
   return (
@@ -71,9 +79,9 @@ const ToogleSupplier = (props: Props) => {
       onClose={handleClose}
       onCancel={handleClose}
       onOk={() => form.submit()}
-      okButtonProps={{loading: isLoading}}
-      title='New Supplier'
-      okText='Add Supplier'
+      okButtonProps={{ loading: isLoading }}
+      title={supplier ? 'Update Supplier' : 'New Supplier'}
+      okText={supplier ? 'Update Supplier' : 'Add Supplier'}
       cancelText='Discard'>
 
       <label htmlFor='inpFile' className='flex justify-center items-center gap-5 my-5'>
@@ -86,10 +94,19 @@ const ToogleSupplier = (props: Props) => {
                 border: '2px dashed #5d6679',
                 textAlign: 'center'
               }}
-              src={URL.createObjectURL(file)}/>
+              src={URL.createObjectURL(file)} />
+          ) : supplier ? (
+            <Avatar
+              size={100}
+              style={{
+                backgroundColor: 'white',
+                border: '2px dashed #5d6679',
+                textAlign: 'center'
+              }}
+              src={supplier.photoUrl} />
           ) : (
             <Avatar
-              size={100}  
+              size={100}
               style={{
                 backgroundColor: 'white',
                 border: '2px dashed #5d6679',
@@ -98,7 +115,7 @@ const ToogleSupplier = (props: Props) => {
               <FaRegUser size={70} style={{ color: colors.grey600 }} />
             </Avatar>
           )}
-          
+
         </div>
         <div>
           <Paragraph style={{ margin: '0px' }}>Drag image heare</Paragraph>
@@ -126,6 +143,9 @@ const ToogleSupplier = (props: Props) => {
         </Form.Item>
         <Form.Item name={'price'} label={'Buying Price'}>
           <Input placeholder='Enter buying price' type='number' allowClear />
+        </Form.Item>
+        <Form.Item name={'email'} label={'Email'}>
+          <Input placeholder='Enter supplier email' type='email' allowClear />
         </Form.Item>
         <Form.Item name={'contact'} label={'Contact Number'}>
           <Input placeholder='Enter supplier contact number' allowClear />
