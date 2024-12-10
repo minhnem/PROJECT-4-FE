@@ -89,7 +89,7 @@ const Login = () => {
           const data = {
             name: user.displayName,
             email: user.email,
-            password: "12345"
+            photoUrl: user.photoURL
           }
           try {
             const res: any = await handleAPI("/auth/google-login", data, "post")

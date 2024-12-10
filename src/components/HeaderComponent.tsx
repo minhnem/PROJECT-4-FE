@@ -1,15 +1,17 @@
 import { Avatar, Button, Dropdown, Input, MenuProps, Space } from 'antd'
 import React from 'react'
 import { FiSearch } from "react-icons/fi";
+import { FaRegUser } from "react-icons/fa";
 import { MdNotificationsNone } from "react-icons/md"
 import { colors } from '../constants/colors';
-import { useDispatch } from 'react-redux';
-import { removeAuth } from '../redux/authReducer';
+import { useDispatch, useSelector } from 'react-redux';
+import { authSelector, removeAuth } from '../redux/authReducer';
 import { useNavigate } from 'react-router-dom';
 
 const HeaderComponent = () => {
-    const dispatch = useDispatch()
     const navigate = useNavigate()
+    const dispatch = useDispatch()
+    const user = useSelector(authSelector)
     const items: MenuProps['items'] = [
         {
             key: 'logout',
@@ -35,7 +37,7 @@ const HeaderComponent = () => {
                 <Space>
                     <Button type='text' icon={<MdNotificationsNone size={30} color={colors.grey600}/>}/>
                     <Dropdown menu={{items}}>
-                        <Avatar src={'https://i.pinimg.com/236x/f7/63/b9/f763b98b0a0502f892c2e464dec4d5a4.jpg'} size={40}/>
+                        {user.photoUrl ? <Avatar src={user.photoUrl} size={40}/> : <Avatar size={40}> <FaRegUser color='black'/> </Avatar>}
                     </Dropdown>
                 </Space>
             </div>

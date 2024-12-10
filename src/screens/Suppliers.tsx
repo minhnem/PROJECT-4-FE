@@ -17,12 +17,21 @@ const Suppliers = () => {
   const [suppliers, setSuppliers] = useState<SupplierModel[]>([])
   const [supplierSelected, setSupplierSelected] = useState<SupplierModel>()
   const [isLoading, setIsLoading] = useState(false)
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+  const [total, setTotal] = useState(10)
 
   useEffect(() => {
     getSuppliers()
-  }, [])
+  }, [page, pageSize])
 
   const columns: ColumnProps<SupplierModel>[] = [
+    {
+      key: 'index',
+      dataIndex: 'index',
+      title: '#',
+      align: 'center'
+    },
     {
       key: 'name',
       dataIndex: 'name',
@@ -53,7 +62,8 @@ const Suppliers = () => {
       key: 'buttonAction',
       dataIndex: '',
       title: 'Action',
-      fixed: 'left',
+      fixed: 'right',
+      align: 'center',
       render: (supplier: SupplierModel) => <Space>
         <Button 
           color='default' 
@@ -86,11 +96,20 @@ const Suppliers = () => {
   ]
 
   const getSuppliers = async () => {
-    const api = '/supplier?page=1&pageSize=10'
+    const api = `/supplier?page=${page}&pageSize=${pageSize}`
     setIsLoading(true)
     try {
       const res = await handleAPI(api)
-      res.data && setSuppliers(res.data)
+      //res.data.suppliers && setSuppliers(res.data.suppliers)
+      const items: SupplierModel[] = []
+      res.data.suppliers.forEach((item: any, index: number) => {
+        items.push({
+          index: ((page - 1) * pageSize) + (index + 1),
+          ...item,
+        })
+      })
+      setSuppliers(items)
+      setTotal(res.data.total)
     } catch (error: any) {
       message.error(error.message)
     }finally{
@@ -117,6 +136,20 @@ const Suppliers = () => {
         loading={isLoading}
         dataSource={suppliers}
         columns={columns}
+        pagination={{
+          showSizeChanger: true,
+          onShowSizeChange: (current, size) => {
+            setPageSize(size)
+          },
+          total,
+          onChange: (page, pageSize) => {
+            setPage(page)
+          },
+        }}
+        scroll={{
+          y: 'calc(100vh - 300px)'
+        }}
+        bordered
         title={() => (
           <div className='grid grid-rows-1 grid-cols-2'>
             <div>
