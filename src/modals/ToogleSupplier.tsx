@@ -115,7 +115,6 @@ const ToogleSupplier = (props: Props) => {
               <FaRegUser size={70} style={{ color: colors.grey600 }} />
             </Avatar>
           )}
-
         </div>
         <div>
           <Paragraph style={{ margin: '0px' }}>Drag image heare</Paragraph>

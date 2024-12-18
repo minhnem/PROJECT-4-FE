@@ -2,24 +2,27 @@ import { Button, message, Modal, Space, Typography } from 'antd'
 import Table, { ColumnProps } from 'antd/es/table'
 import React, { useEffect, useState } from 'react'
 import { FiFilter } from "react-icons/fi";
-import { ToogleSupplier } from '../modals';
+import { ModalExportExcel, ToogleSupplier } from '../modals';
 import { SupplierModel } from '../models/SupplierModel';
 import handleAPI from '../apis/handleAPI';
 import { MdEditSquare } from "react-icons/md";
 import { RiUserForbidFill } from "react-icons/ri";
+import { Resizable } from 're-resizable';
 
 const { Title, Text } = Typography
 const { confirm } = Modal
 
 const Suppliers = () => {
 
-  const [isVisibleModelAddNew, setIsVisibleModelAddNew] = useState(false)
+  const [isVisibleModalAddNew, setIsVisibleModalAddNew] = useState(false)
+  const [isVisibleModalExport, setIsVisibleModalExport] = useState(false)
   const [suppliers, setSuppliers] = useState<SupplierModel[]>([])
   const [supplierSelected, setSupplierSelected] = useState<SupplierModel>()
   const [isLoading, setIsLoading] = useState(false)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [total, setTotal] = useState(10)
+  const [resize, setResize] = useState<number>(350)
 
   useEffect(() => {
     getSuppliers()
@@ -30,33 +33,39 @@ const Suppliers = () => {
       key: 'index',
       dataIndex: 'index',
       title: '#',
-      align: 'center'
+      align: 'center',
+      width: 50
     },
     {
       key: 'name',
       dataIndex: 'name',
-      title: 'Supplier name'
+      title: 'Supplier name',
+      width: 250
     },
     {
       key: 'product',
       dataIndex: 'product',
-      title: 'Product'
+      title: 'Product',
+      width: resize
     },
     {
       key: 'email',
       dataIndex: 'email',
-      title: 'Email'
+      title: 'Email',
+      width: 250
     },
     {
       key: 'contact',
       dataIndex: 'contact',
-      title: 'Contact'
+      title: 'Contact',
+      width: 150
     },
     {
       key: 'taking',
       dataIndex: 'isTaking',
       title: 'Type',
-      render: (isTaking: boolean) => <Text type={isTaking ? 'success' : 'danger'}>{isTaking ? 'Taking': 'Not Taking'}</Text>
+      width: 150,
+      render: (isTaking: boolean) => <Text type={isTaking ? 'success' : 'danger'}>{isTaking ? 'Taking' : 'Not Taking'}</Text>
     },
     {
       key: 'buttonAction',
@@ -64,23 +73,24 @@ const Suppliers = () => {
       title: 'Action',
       fixed: 'right',
       align: 'center',
+      width: 100,
       render: (supplier: SupplierModel) => <Space>
-        <Button 
-          color='default' 
-          variant="outlined" 
-          icon={<MdEditSquare size={20} 
-          className='text-blue-500'/>}
-          onClick={() => { 
+        <Button
+          color='default'
+          type='link'
+          icon={<MdEditSquare size={20}
+            className='text-blue-500' />}
+          onClick={() => {
             setSupplierSelected(supplier)
-            setIsVisibleModelAddNew(true)
+            setIsVisibleModalAddNew(true)
           }}
         />
-        <Button 
-          color='danger' 
-          variant='outlined' 
-          icon={<RiUserForbidFill 
-          size={20} 
-          className='text-red-500'/>}
+        <Button
+          color='danger'
+          type='link'
+          icon={<RiUserForbidFill
+            size={20}
+            className='text-red-500' />}
           onClick={() =>
             confirm({
               title: 'ConFirm',
@@ -90,7 +100,7 @@ const Suppliers = () => {
                 getSuppliers()
               }
             })
-          }/>
+          } />
       </Space>
     }
   ]
@@ -100,7 +110,6 @@ const Suppliers = () => {
     setIsLoading(true)
     try {
       const res = await handleAPI(api)
-      //res.data.suppliers && setSuppliers(res.data.suppliers)
       const items: SupplierModel[] = []
       res.data.suppliers.forEach((item: any, index: number) => {
         items.push({
@@ -112,7 +121,7 @@ const Suppliers = () => {
       setTotal(res.data.total)
     } catch (error: any) {
       message.error(error.message)
-    }finally{
+    } finally {
       setIsLoading(false)
     }
   }
@@ -130,9 +139,29 @@ const Suppliers = () => {
     }
   }
 
+  const RenderTitle = (props: any) => {
+    const { children, ...restProps } = props
+    return <th {...restProps}>
+      <Resizable
+        enable={{ right: true }}
+        onResizeStop={(_e, _derection, _ref, d) => {
+          const item: any = columns.find((element) => element.title === children[1])
+          if(item.key === 'product') {
+            const newWidth = (item.width as number) + d.width
+            setResize(newWidth)
+          }
+        }}
+      >
+        {children}
+      </Resizable>
+    </th>
+  }
+
+
+
   return (
     <div>
-      <Table 
+      <Table
         loading={isLoading}
         dataSource={suppliers}
         columns={columns}
@@ -150,6 +179,11 @@ const Suppliers = () => {
           y: 'calc(100vh - 300px)'
         }}
         bordered
+        components={{
+          header: {
+            cell: RenderTitle,
+          }
+        }}
         title={() => (
           <div className='grid grid-rows-1 grid-cols-2'>
             <div>
@@ -157,30 +191,37 @@ const Suppliers = () => {
             </div>
             <div className='text-end'>
               <Space>
-                <Button 
-                  type='primary' 
+                <Button
+                  type='primary'
                   onClick={() => {
-                    setIsVisibleModelAddNew(true)
+                    setIsVisibleModalAddNew(true)
                   }}>
-                    Add Suppliers
+                  Add Suppliers
                 </Button>
                 <Button icon={<FiFilter />}>Filter</Button>
-                <Button>Download All</Button>
+                <Button onClick={() => setIsVisibleModalExport(true)}>Download All</Button>
               </Space>
             </div>
           </div>
         )}
       />
 
-      <ToogleSupplier 
-        visible={isVisibleModelAddNew} 
+      <ToogleSupplier
+        visible={isVisibleModalAddNew}
         onClose={() => {
           supplierSelected && getSuppliers()
           setSupplierSelected(undefined)
-          setIsVisibleModelAddNew(false)
-        }} 
-        onAddNew={val => setSuppliers([...suppliers, val])} 
+          setIsVisibleModalAddNew(false)
+        }}
+        onAddNew={val => setSuppliers([...suppliers, val])}
         supplier={supplierSelected} />
+
+      <ModalExportExcel 
+        visible={isVisibleModalExport}  
+        onClose={() => setIsVisibleModalExport(false)}
+        api='supplier'
+        name='supplier'
+      />
 
     </div>
   )

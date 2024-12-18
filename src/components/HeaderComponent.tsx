@@ -30,7 +30,7 @@ const HeaderComponent = () => {
                     size='large'
                     style={{
                         borderRadius: 100,
-                        width: '50%'
+                        width: '70%'
                     }} />
             </div>
             <div className='text-end'>
