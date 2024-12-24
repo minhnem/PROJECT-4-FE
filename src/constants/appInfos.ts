@@ -3,5 +3,5 @@ export const localDataNames = {
 }
 
 export const appInfo = {
-    title: "Pruisuit" 
+    title: "Pursuit" 
 }

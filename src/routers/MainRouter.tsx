@@ -2,18 +2,19 @@ import React from 'react'
 import HomeScreen from '../screens/HomeScreen'
 import { Affix, Layout } from 'antd'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import Inventory from '../screens/Inventory'
 import Dashboard from '../screens/Dashboard'
 import Reports from '../screens/Reports'
 import Suppliers from '../screens/Suppliers'
 import Oders from '../screens/Oders'
 import ManageStore from '../screens/ManageStore'
+import AddProduct from '../screens/inventories/AddProduct'
+import Inventory from '../screens/inventories/Inventory'
 import { HeaderComponent, SiderComponent } from '../components'
 
 const { Content, Footer, Header, Sider } = Layout
 
 const MainRouter = () => {
-
+  
   return (
     <BrowserRouter>
       <Layout>
@@ -24,11 +25,14 @@ const MainRouter = () => {
           <Affix offsetTop={0}>
             <HeaderComponent />
           </Affix>
-          <Content className='mt-3 mb-2 mx-auto container bg-white'>
+          <Content className='mx-auto p-6 container'>
             <Routes>
               <Route path='/' element={<HomeScreen />}/>
               <Route path='/dashboard' element={<Dashboard />}/>
-              <Route path='/inventory' element={<Inventory />}/>
+              <Route>
+                <Route path='/inventory' element={<Inventory />}/>
+                <Route path='/inventory/add-new-product' element={<AddProduct />}/>
+              </Route>
               <Route path='/reports' element={<Reports />}/>
               <Route path='/suppliers' element={<Suppliers />}/>
               <Route path='/oders' element={<Oders />}/>

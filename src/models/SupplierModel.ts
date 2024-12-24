@@ -13,3 +13,8 @@ export interface SupplierModel {
     updatedAt: string
     _id: string
   }
+
+export interface SupplierOption {
+  label: string,
+  value: string
+}

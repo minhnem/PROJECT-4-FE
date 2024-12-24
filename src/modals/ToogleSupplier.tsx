@@ -131,23 +131,23 @@ const ToogleSupplier = (props: Props) => {
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 18 }}
         size='large'>
-        <Form.Item name={'name'} label={'Supplier Name'} rules={[{ required: true, message: 'Please enter supplier name' }]}>
-          <Input placeholder='Entersupplier name' allowClear />
+        <Form.Item name={'name'} label={'Supplier Name'} rules={[{ required: true, message: 'Vui lòng nhạp tên nhà cung cấp.' }]}>
+          <Input placeholder='Nhập tên nhà cung cấp' allowClear />
         </Form.Item>
         <Form.Item name={'product'} label={'Product'}>
-          <Input placeholder='Enter product' allowClear />
+          <Input placeholder='Nhập tên sản phẩm' allowClear />
         </Form.Item>
         <Form.Item name={'category'} label={'Category'}>
-          <Select options={[]} placeholder='Select product category' />
+          <Select options={[]} placeholder='Chọn danh mục sản phẩm' />
         </Form.Item>
         <Form.Item name={'price'} label={'Buying Price'}>
-          <Input placeholder='Enter buying price' type='number' allowClear />
+          <Input placeholder='Nhập giá sản phẩm' type='number' allowClear />
         </Form.Item>
         <Form.Item name={'email'} label={'Email'}>
-          <Input placeholder='Enter supplier email' type='email' allowClear />
+          <Input placeholder='Nhập email nhà cung cấp' type='email' allowClear />
         </Form.Item>
         <Form.Item name={'contact'} label={'Contact Number'}>
-          <Input placeholder='Enter supplier contact number' allowClear />
+          <Input placeholder='Nhập số điện thoại nhà cung cấp' allowClear />
         </Form.Item>
         <Form.Item label={'Type'}>
           <div className='mb-3'>

@@ -61,7 +61,6 @@ const ModalExportExcel = (props: Props) => {
             items.push(value)
         }
         setCheckedVales(items)
-
     }
 
     const handleExport = async () => {
@@ -81,7 +80,7 @@ const ModalExportExcel = (props: Props) => {
             try {
                 setIsLoading(true)
                 const res = await handleAPI(url, data, 'post')
-                res.data && handleExportExcel(res.data, api)
+                res.data && handleExportExcel(res.data, name)
             } catch (error: any) {
                 message.error(error.message)
             } finally {

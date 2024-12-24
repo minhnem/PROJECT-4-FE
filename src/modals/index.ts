@@ -1,3 +1,5 @@
 import ModalExportExcel from './ModalExportExcel'
 import ToogleSupplier from './ToogleSupplier'
-export { ToogleSupplier, ModalExportExcel }
+import ModalCategoty from './ModalCategory'
+
+export { ToogleSupplier, ModalExportExcel, ModalCategoty }
