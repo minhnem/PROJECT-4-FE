@@ -41,15 +41,13 @@ const AddProduct = () => {
     const getCategories = async () => {
         const api = '/product'
         const res = await handleAPI(api)
-        // const datas =  res.data.length > 0 ? res.data.map((item: any) => ({title: item.title, value: item._id})) : []
-        const datas = res.data.length > 0 ? getTreevalues(res.data, 'parentId') : []
+        const datas = res.data.categories.length > 0 ? getTreevalues(res.data.categories, 'parentId') : []
         setCategories(datas)
-
     }
 
     const getTreevalues = (datas: any, key: string) => {
         const items: any[] = []
-        const keys: string[] = []
+        const keys: string[] = [] 
 
         datas.forEach((element: any) => {
             if (element[`${key}`] && !keys.includes(element[`${key}`])) {

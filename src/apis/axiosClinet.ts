@@ -21,8 +21,6 @@ axiosClient.interceptors.request.use(async (config: any) => {
         Accept: "application/json",
         ...config.headers
     }
-    console.log(config);
-    
     return {...config, data: config.data ?? null}
 })
 

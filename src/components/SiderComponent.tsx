@@ -7,6 +7,7 @@ import { MdOutlineInventory2 } from "react-icons/md";
 import { BsBarChart } from "react-icons/bs";
 import { FaRegCircleUser } from "react-icons/fa6";
 import { MdOutlineEventNote } from "react-icons/md";
+import { BsBarChartSteps } from "react-icons/bs";
 import { BsBoxSeam } from "react-icons/bs";
 import { appInfo } from '../constants/appInfos';
 import { colors } from '../constants/colors';
@@ -37,6 +38,11 @@ const SiderComponent = () => {
                     label: <Link to={'/inventory/add-new-product'}>Add New Product</Link>
                 }
             ]
+        },
+        {
+            key: 'category',
+            label: <Link to={'/category'}>Category</Link>,
+            icon: <BsBarChartSteps size={18}/>
         },
         {
             key: 'reports',

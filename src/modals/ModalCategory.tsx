@@ -62,7 +62,7 @@ const ModalCategory = (props: Props) => {
                 onFinish={handleAddCategory}
             >
                 <FormItem name='parentId' label='Chọn danh mục'>
-                    <TreeSelect treeData={values} allowClear treeDefaultExpandAll/>
+                    <TreeSelect treeData={values} allowClear treeDefaultExpandAll placeholder='Chọn danh mục'/>
                 </FormItem>
                 <FormItem name='title' label='Tên danh mục' rules={[{ required: true, message: 'Vui lòng nhập tên danh mục.' }]}>
                     <Input placeholder='Nhập tên danh mục' allowClear />
