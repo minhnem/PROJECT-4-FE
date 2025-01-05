@@ -55,7 +55,6 @@ const ToogleSupplier = (props: Props) => {
     try {
       const res: any = await handleAPI(`/supplier/${supplier ? `update?id=${supplier._id}` : 'add-new'}`, data, supplier ? 'put' : 'post')
       message.success(res.message)
-      console.log(res.data);
       onAddNew(res.data)
       handleClose()
     } catch (error) {

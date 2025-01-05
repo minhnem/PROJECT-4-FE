@@ -93,8 +93,8 @@ const Suppliers = () => {
             className='text-red-500' />}
           onClick={() =>
             confirm({
-              title: 'ConFirm',
-              content: 'Are you sure delete this supplier ?',
+              title: 'Xác nhận',
+              content: 'Bạn có chắc muốn xóa nhà cung cấp này ?',
               onOk: () => {
                 deleteSupplier(supplier._id)
                 getSuppliers()

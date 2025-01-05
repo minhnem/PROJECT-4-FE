@@ -7,6 +7,7 @@ import { SupplierModel, SupplierOption } from '../../models/SupplierModel'
 import { TreeData } from '../../models/CategoryModel'
 import handleAPI from '../../apis/handleAPI'
 import { replaceName } from '../../utils/repalceName'
+import { getTreevalues } from '../../utils/getTreevalues'
 
 const { Title } = Typography
 
@@ -41,34 +42,8 @@ const AddProduct = () => {
     const getCategories = async () => {
         const api = '/product'
         const res = await handleAPI(api)
-        const datas = res.data.categories.length > 0 ? getTreevalues(res.data.categories, 'parentId') : []
+        const datas = res.data.categories.length > 0 ? getTreevalues(res.data.categories) : []
         setCategories(datas)
-    }
-
-    const getTreevalues = (datas: any, key: string) => {
-        const items: any[] = []
-        const keys: string[] = [] 
-
-        datas.forEach((element: any) => {
-            if (element[`${key}`] && !keys.includes(element[`${key}`])) {
-                keys.push(element[`${key}`])
-            }
-        });
-
-        datas.forEach((element: any) => {
-            if (element[`${key}`]) {
-                const index = items.findIndex((item) => item.value === element[`${key}`])
-                const children = datas.filter((item: any) => item[`${key}`] === element[`${key}`])
-
-                if (index !== -1) {
-                    items[index].children = children.map((value: any) => ({ label: value.title, value: value._id }))
-                }
-            } else {
-                items.push(({ label: element.title, value: element._id }))
-            }
-
-        })
-        return items
     }
 
     const handleAddProduct = async (values: any) => {

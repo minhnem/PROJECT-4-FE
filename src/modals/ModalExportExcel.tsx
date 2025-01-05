@@ -91,14 +91,19 @@ const ModalExportExcel = (props: Props) => {
         }
     }
 
+    const handleClose = () => {
+        setCheckedVales([])
+        onClose()
+    }
+
 
     return (
         <Modal
             loading={isGetting}
             open={visible}
             title='Export Excel'
-            onClose={onClose}
-            onCancel={onClose}
+            onClose={handleClose}
+            onCancel={handleClose}
             onOk={handleExport}
             okButtonProps={{
                 loading: isLoading
