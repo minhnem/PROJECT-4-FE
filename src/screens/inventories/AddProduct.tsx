@@ -1,4 +1,4 @@
-import { Button, Card, Divider, Form, Input, message, Select, Typography } from 'antd'
+import { Button, Card, Divider, Form, Image, Input, message, Select, TreeSelect, Typography, UploadFile } from 'antd'
 import { useForm } from 'antd/es/form/Form'
 import FormItem from 'antd/es/form/FormItem'
 import React, { useEffect, useState } from 'react'
@@ -8,13 +8,20 @@ import { TreeData } from '../../models/CategoryModel'
 import handleAPI from '../../apis/handleAPI'
 import { replaceName } from '../../utils/repalceName'
 import { getTreevalues } from '../../utils/getTreevalues'
+import Upload, { UploadProps } from 'antd/es/upload'
+import { FaPlus } from "react-icons/fa6";
+import { uploadFile } from '../../utils/uploadFile'
 
-const { Title } = Typography
+const { Title, Text } = Typography
 
 const AddProduct = () => {
     const [isVisibleModalCategory, setIsVisibleModalCategory] = useState(false)
     const [supplierOptions, setSupplierOptions] = useState<SupplierOption[]>([])
     const [categories, setCategories] = useState<TreeData[]>([])
+    const [fileList, setFileList] = useState<any[]>([])
+    const [previewOpen, setPreviewOpen] = useState(false)
+    const [previewImage, setPreviewIamge] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
 
     const [form] = Form.useForm()
 
@@ -40,34 +47,90 @@ const AddProduct = () => {
     }
 
     const getCategories = async () => {
-        const api = '/product'
+        const api = '/product/get-categories'
         const res = await handleAPI(api)
         const datas = res.data.categories.length > 0 ? getTreevalues(res.data.categories) : []
         setCategories(datas)
     }
 
+    const handleChangeUpLoad: UploadProps['onChange'] = ({ fileList: newFileList }) => {
+        const items = newFileList.map((file) => ({ ...file, url: file.originFileObj && URL.createObjectURL(file.originFileObj), status: 'done' }))
+        setFileList(items)
+    }
+
     const handleAddProduct = async (values: any) => {
-        console.log(values);
+        setIsLoading(true)
+        const data: any = {}
+        for (const i in values) {
+            data[i] = values[i] ?? ''
+        }
+        data.slug = replaceName(values.title)
+        if (fileList.length > 0) {
+            const urls: string[] = []
+            for(const file of fileList) {
+                const url = await uploadFile(file.originFileObj)
+                urls.push(url)
+            }
+            data.images = urls
+        }
+        try {
+            const api = '/product/add-new-product'
+            const res: any = await handleAPI(api, data, 'post')
+            message.success(res.message)
+            console.log(res.data)
+        } catch (error: any) {
+            message.error(error.message)
+            console.log(error)
+        } finally {
+            setIsLoading(false)
+            form.resetFields()
+        }
+
     }
 
     return (
         <div>
             <Title level={4}>Add New Product</Title>
-            <Form form={form} size='large' layout='vertical' onFinish={handleAddProduct}>
+            <Form form={form} size='large' layout='vertical' onFinish={handleAddProduct} disabled={isLoading}>
                 <div className='grid grid-cols-12 gap-10'>
                     <div className='col-span-8'>
-                        <FormItem name='title' label='Tên sản phẩm' rules={[{ required: true, message: 'Vui lòng nhập tên sản phẩm.' }]}>
+                            <Card title='Chọn ảnh sản phẩm'>
+                                <Upload
+                                    listType='picture-card'
+                                    fileList={fileList}
+                                    onChange={handleChangeUpLoad}
+                                >
+                                    <FaPlus style={{ marginRight: '5px' }} />
+                                    Tải lên
+                                </Upload>
+                            </Card>
+                            {
+                                previewImage && (
+                                    <Image
+                                        wrapperStyle={{ display: 'none' }}
+                                        preview={{
+                                            visible: previewOpen,
+                                            onVisibleChange: (visible) => setPreviewOpen(visible),
+                                            afterOpenChange: (visible) => !visible && setPreviewIamge('')
+                                        }}
+                                        src={previewImage}
+
+                                    />
+                                )
+                            }
+                        <FormItem name='title' label='Tên sản phẩm:' rules={[{ required: true, message: 'Vui lòng nhập tên sản phẩm.' }]}>
                             <Input placeholder='Nhập tên sản phẩm' allowClear maxLength={150} showCount />
                         </FormItem>
-                        <FormItem name='description' label='Mô tả sản phẩm'>
+                        <FormItem name='description' label='Mô tả sản phẩm:'>
                             <Input.TextArea maxLength={1000} showCount allowClear />
                         </FormItem>
                     </div>
                     <div className='col-span-4' >
-                        <Card className='mt-5' title='Category'>
-                            <FormItem name='category' rules={[{ required: true, message: 'Vui lòng chọn danh mục.' }]}>
-                                <Select
-                                    options={[]}
+                        <Card title='Danh mục'>
+                            <FormItem name='categories' rules={[{ required: true, message: 'Vui lòng chọn danh mục.' }]}>
+                                <TreeSelect
+                                    treeData={categories}
+                                    multiple
                                     dropdownRender={(menu) => (
                                         <>
                                             {menu}
@@ -84,7 +147,7 @@ const AddProduct = () => {
                             </FormItem>
                         </Card>
 
-                        <Card className='mt-5' title='Supplier'>
+                        <Card className='mt-5' title='Nhà cung cấp'>
                             <FormItem name='supplier' rules={[{ required: true, message: 'Vui lòng chọn nhà cung cấp.' }]}>
                                 <Select
                                     showSearch
@@ -95,7 +158,7 @@ const AddProduct = () => {
                         </Card>
 
                         <Card className='mt-5'>
-                            <Button type='primary' onClick={() => form.submit()}>submit</Button>
+                            <Button loading={isLoading} type='primary' onClick={() => form.submit()}>submit</Button>
                         </Card>
                     </div>
                 </div>
@@ -104,9 +167,8 @@ const AddProduct = () => {
                     visible={isVisibleModalCategory}
                     onClose={() => setIsVisibleModalCategory(false)}
                     values={categories}
-                    onAddNew={async () => await getCategories()} 
+                    onAddNew={async () => await getCategories()}
                 />
-
             </Form>
         </div>
     )

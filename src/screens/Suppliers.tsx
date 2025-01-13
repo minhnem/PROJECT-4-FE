@@ -39,13 +39,13 @@ const Suppliers = () => {
     {
       key: 'name',
       dataIndex: 'name',
-      title: 'Supplier name',
+      title: 'Tên nhà cung cấp',
       width: 250
     },
     {
       key: 'product',
       dataIndex: 'product',
-      title: 'Product',
+      title: 'Sản phẩm',
       width: resize
     },
     {
@@ -57,7 +57,7 @@ const Suppliers = () => {
     {
       key: 'contact',
       dataIndex: 'contact',
-      title: 'Contact',
+      title: 'Số điện thoại',
       width: 150
     },
     {
@@ -70,7 +70,7 @@ const Suppliers = () => {
     {
       key: 'buttonAction',
       dataIndex: '',
-      title: 'Action',
+      title: 'Tùy chọn',
       fixed: 'right',
       align: 'center',
       width: 100,
@@ -187,7 +187,7 @@ const Suppliers = () => {
         title={() => (
           <div className='grid grid-rows-1 grid-cols-2'>
             <div>
-              <Title level={5}>Suppliers</Title>
+              <Title level={5}>Bảng nhà cung cấp</Title>
             </div>
             <div className='text-end'>
               <Space>
@@ -196,10 +196,10 @@ const Suppliers = () => {
                   onClick={() => {
                     setIsVisibleModalAddNew(true)
                   }}>
-                  Add Suppliers
+                  Thêm Mới
                 </Button>
-                <Button icon={<FiFilter />}>Filter</Button>
-                <Button onClick={() => setIsVisibleModalExport(true)}>Download All</Button>
+                <Button icon={<FiFilter />}>Lọc</Button>
+                <Button onClick={() => setIsVisibleModalExport(true)}>Xuất File Excel</Button>
               </Space>
             </div>
           </div>

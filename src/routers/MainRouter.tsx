@@ -12,7 +12,7 @@ import Inventory from '../screens/inventories/Inventory'
 import { HeaderComponent, SiderComponent } from '../components'
 import Category from '../screens/Category'
 
-const { Content, Footer, Header, Sider } = Layout
+const { Content, Footer } = Layout
 
 const MainRouter = () => {
   

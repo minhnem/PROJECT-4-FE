@@ -8,5 +8,9 @@ export const uploadFile = async (file: any) => {
     const api = `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLUOD_NAME}/image/upload`
 
     const res = await axios.post(api, data) 
-    return res.data.secure_url
+    if(res) {
+        return res.data.secure_url
+    } else {
+        return 'Lỗi upload file'
+    }
 }

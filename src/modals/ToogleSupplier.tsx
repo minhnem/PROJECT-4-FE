@@ -79,9 +79,9 @@ const ToogleSupplier = (props: Props) => {
       onCancel={handleClose}
       onOk={() => form.submit()}
       okButtonProps={{ loading: isLoading }}
-      title={supplier ? 'Update Supplier' : 'New Supplier'}
-      okText={supplier ? 'Update Supplier' : 'Add Supplier'}
-      cancelText='Discard'>
+      title={supplier ? 'Sửa' : 'Thêm Mới'}
+      okText={supplier ? 'Sửa' : 'Thêm Mới'}
+      cancelText='Hủy'>
 
       <label htmlFor='inpFile' className='flex justify-center items-center gap-5 my-5'>
         <div className='flex justify-center'>
@@ -130,22 +130,22 @@ const ToogleSupplier = (props: Props) => {
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 18 }}
         size='large'>
-        <Form.Item name={'name'} label={'Supplier Name'} rules={[{ required: true, message: 'Vui lòng nhạp tên nhà cung cấp.' }]}>
+        <Form.Item name={'name'} label={'Tên nhà cung cấp'} rules={[{ required: true, message: 'Vui lòng nhạp tên nhà cung cấp.' }]}>
           <Input placeholder='Nhập tên nhà cung cấp' allowClear />
         </Form.Item>
-        <Form.Item name={'product'} label={'Product'}>
+        <Form.Item name={'product'} label={'Sản phẩm'}>
           <Input placeholder='Nhập tên sản phẩm' allowClear />
         </Form.Item>
-        <Form.Item name={'category'} label={'Category'}>
+        <Form.Item name={'category'} label={'Danh mục'}>
           <Select options={[]} placeholder='Chọn danh mục sản phẩm' />
         </Form.Item>
-        <Form.Item name={'price'} label={'Buying Price'}>
+        <Form.Item name={'price'} label={'Giá'}>
           <Input placeholder='Nhập giá sản phẩm' type='number' allowClear />
         </Form.Item>
         <Form.Item name={'email'} label={'Email'}>
           <Input placeholder='Nhập email nhà cung cấp' type='email' allowClear />
         </Form.Item>
-        <Form.Item name={'contact'} label={'Contact Number'}>
+        <Form.Item name={'contact'} label={'Số điện thoại'}>
           <Input placeholder='Nhập số điện thoại nhà cung cấp' allowClear />
         </Form.Item>
         <Form.Item label={'Type'}>

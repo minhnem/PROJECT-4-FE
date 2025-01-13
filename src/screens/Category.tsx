@@ -38,6 +38,7 @@ const Category = () => {
         },
         {
             key: 'action',
+            dataIndex: '',
             title: 'Lựa chọn',
             align: 'center',
             width: 100,
@@ -86,7 +87,7 @@ const Category = () => {
 
     const getCategories = async () => {
         setIsLoading(true)
-        const api = `/product`
+        const api = `/product/get-categories`
         try {
             const res = await handleAPI(api)
             if (res.data) {
@@ -102,7 +103,7 @@ const Category = () => {
     }
 
     const getTreeValueCategory = async () => {
-        const api = '/product'
+        const api = '/product/get-categories'
         try {
             const res = await handleAPI(api)
             const datas = res.data.categories.length > 0 ? getTreevalues(res.data.categories) : []
