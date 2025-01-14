@@ -1,21 +1,22 @@
-import { ColorPicker, Form, Input, InputNumber, message, Modal, Typography, Upload, UploadProps } from 'antd'
+import { ColorPicker, Form, Input, InputNumber, message, Modal, Upload, UploadProps } from 'antd'
 import { useForm } from 'antd/es/form/Form'
 import FormItem from 'antd/es/form/FormItem'
 import React, { useState } from 'react'
 import { FaPlus } from "react-icons/fa6";
 import { uploadFile } from '../utils/uploadFile';
-import { ProductModel } from '../models/ProductModel';
+import { ProductModel, SubProductModel } from '../models/ProductModel';
 import handleAPI from '../apis/handleAPI';
 
 interface Props {
     visible: boolean,
     onClose: () => void,
-    product?: ProductModel, 
+    product?: ProductModel,
+    onAddNew: (val: SubProductModel) => void 
 }
 
 const ModalSubProduct = (props: Props) => {
 
-    const { visible, onClose, product } = props
+    const { visible, onClose, product, onAddNew } = props
 
     const [isLoading, setIsLoading] = useState(false)
     const [fileList, setFileList] = useState<any[]>([])
@@ -53,6 +54,7 @@ const ModalSubProduct = (props: Props) => {
             const api = '/product/add-sub-product'
             const res: any = await handleAPI(api, data, 'post')
             message.success(res.message)
+            onAddNew(res.data)
             setFileList([])
             form.resetFields()
         } catch (error: any) {
@@ -100,7 +102,7 @@ const ModalSubProduct = (props: Props) => {
                 <FormItem name='color' label='Chọn màu sắc:'>
                     <ColorPicker format='hex' />
                 </FormItem>
-                <FormItem name='size' label='Nhập kích cỡ;' rules={[{ required: true, message: 'Vui lòng nhập kích cỡ cho sản phẩm.' }]}>
+                <FormItem name='size' label='Nhập kích cỡ:' rules={[{ required: true, message: 'Vui lòng nhập kích cỡ cho sản phẩm.' }]}>
                     <Input allowClear />
                 </FormItem>
                 <div className='grid grid-cols-2 gap-5'>

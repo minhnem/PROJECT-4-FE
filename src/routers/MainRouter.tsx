@@ -11,6 +11,7 @@ import AddProduct from '../screens/inventories/AddProduct'
 import Inventory from '../screens/inventories/Inventory'
 import { HeaderComponent, SiderComponent } from '../components'
 import Category from '../screens/Category'
+import ProductDetail from '../screens/inventories/ProductDetail'
 
 const { Content, Footer } = Layout
 
@@ -32,6 +33,7 @@ const MainRouter = () => {
               <Route path='/dashboard' element={<Dashboard />}/>
               <Route>
                 <Route path='/inventory' element={<Inventory />}/>
+                <Route path='/inventory/product-detail' element={<ProductDetail/>}/>
                 <Route path='/inventory/add-new-product' element={<AddProduct />}/>
               </Route>
               <Route path='/category' element={<Category />}/>

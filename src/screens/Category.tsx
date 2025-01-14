@@ -63,7 +63,7 @@ const Category = () => {
                             onOk: () => {
                                 handleDeleteCategory(category._id)
                                 getCategories()
-                            }
+                            },
                         })
                     }
                 />
@@ -163,7 +163,7 @@ const Category = () => {
         try {
             await handleAPI(api, undefined, 'delete')
             message.success('Xóa danh mục thành công.')
-            setCategories(categories.filter((element => element._id !== id)))
+            setCategories(categories.filter((element) => element._id !== id))
             getTreeValueCategory()
         } catch (error: any) {
             message.error(error.message)

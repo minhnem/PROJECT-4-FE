@@ -1,5 +1,4 @@
-import { Button, Card, Divider, Form, Image, Input, message, Select, TreeSelect, Typography, UploadFile } from 'antd'
-import { useForm } from 'antd/es/form/Form'
+import { Button, Card, Divider, Form, Image, Input, message, Select, TreeSelect, Typography } from 'antd'
 import FormItem from 'antd/es/form/FormItem'
 import React, { useEffect, useState } from 'react'
 import { ModalCategoty } from '../../modals'
@@ -12,7 +11,7 @@ import Upload, { UploadProps } from 'antd/es/upload'
 import { FaPlus } from "react-icons/fa6";
 import { uploadFile } from '../../utils/uploadFile'
 
-const { Title, Text } = Typography
+const { Title } = Typography
 
 const AddProduct = () => {
     const [isVisibleModalCategory, setIsVisibleModalCategory] = useState(false)
@@ -90,7 +89,7 @@ const AddProduct = () => {
 
     return (
         <div>
-            <Title level={4}>Add New Product</Title>
+            <Title level={4}>Thêm mới sản phẩm</Title>
             <Form form={form} size='large' layout='vertical' onFinish={handleAddProduct} disabled={isLoading}>
                 <div className='grid grid-cols-12 gap-10'>
                     <div className='col-span-8'>
