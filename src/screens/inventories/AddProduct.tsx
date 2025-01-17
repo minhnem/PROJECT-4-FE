@@ -10,6 +10,7 @@ import { getTreevalues } from '../../utils/getTreevalues'
 import Upload, { UploadProps } from 'antd/es/upload'
 import { FaPlus } from "react-icons/fa6";
 import { uploadFile } from '../../utils/uploadFile'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 const { Title } = Typography
 
@@ -22,11 +23,21 @@ const AddProduct = () => {
     const [previewImage, setPreviewIamge] = useState('')
     const [isLoading, setIsLoading] = useState(false)
 
+    const navigate = useNavigate()
+    const [searchParams] = useSearchParams()
+    const id = searchParams.get('id')
+
     const [form] = Form.useForm()
 
     useEffect(() => {
         getData()
     }, [])
+
+    useEffect(() => {
+        if (id) {
+            getProductDetail(id)
+        }
+    }, [id])
 
     const getData = async () => {
         try {
@@ -52,8 +63,34 @@ const AddProduct = () => {
         setCategories(datas)
     }
 
+    const getProductDetail = async (id: string) => {
+        try {
+            const api = `/product/get-product-detail?id=${id}`
+            const res = await handleAPI(api)
+            const item = res.data
+            if (item) {
+                form.setFieldsValue(item)
+                if(item.images && item.images.length > 0) {
+                    const images = [...fileList]
+                    item.images.forEach((url: string) => images.push({
+                        uid: `${Math.floor(Math.random() * 100000)}`,
+                        name: url,
+                        status: 'done',
+                        url,
+                    }))
+                    setFileList(images)
+                }
+            }
+        } catch (error: any) {
+            message.error(error.message)
+            console.log(error)
+        }
+    }
+
     const handleChangeUpLoad: UploadProps['onChange'] = ({ fileList: newFileList }) => {
-        const items = newFileList.map((file) => ({ ...file, url: file.originFileObj && URL.createObjectURL(file.originFileObj), status: 'done' }))
+        const items = newFileList.map((file) => file.originFileObj
+            ? { ...file, url: file.originFileObj && URL.createObjectURL(file.originFileObj), status: 'done' }
+            : { ...file })
         setFileList(items)
     }
 
@@ -66,57 +103,61 @@ const AddProduct = () => {
         data.slug = replaceName(values.title)
         if (fileList.length > 0) {
             const urls: string[] = []
-            for(const file of fileList) {
-                const url = await uploadFile(file.originFileObj)
-                urls.push(url)
+            for (const file of fileList) {
+                if(file.originFileObj) {
+                    const url = await uploadFile(file.originFileObj)
+                    urls.push(url)
+                }else {
+                    urls.push(file.url)
+                }
             }
             data.images = urls
         }
         try {
-            const api = '/product/add-new-product'
-            const res: any = await handleAPI(api, data, 'post')
+            const api = `/product/${id ? `update-product?id=${id}` : 'add-new-product'}`
+            const res: any = await handleAPI(api, data, `${id ? 'put' : 'post'}`)
             message.success(res.message)
-            console.log(res.data)
         } catch (error: any) {
             message.error(error.message)
             console.log(error)
         } finally {
             setIsLoading(false)
             form.resetFields()
+            navigate('/inventory')
         }
 
     }
 
     return (
         <div>
-            <Title level={4}>Thêm mới sản phẩm</Title>
+            <Title level={4}>{id ? 'Sửa sản phẩm' : 'Thêm mới sản phẩm'}</Title>
             <Form form={form} size='large' layout='vertical' onFinish={handleAddProduct} disabled={isLoading}>
                 <div className='grid grid-cols-12 gap-10'>
                     <div className='col-span-8'>
-                            <Card title='Chọn ảnh sản phẩm'>
-                                <Upload
-                                    listType='picture-card'
-                                    fileList={fileList}
-                                    onChange={handleChangeUpLoad}
-                                >
-                                    <FaPlus style={{ marginRight: '5px' }} />
-                                    Tải lên
-                                </Upload>
-                            </Card>
-                            {
-                                previewImage && (
-                                    <Image
-                                        wrapperStyle={{ display: 'none' }}
-                                        preview={{
-                                            visible: previewOpen,
-                                            onVisibleChange: (visible) => setPreviewOpen(visible),
-                                            afterOpenChange: (visible) => !visible && setPreviewIamge('')
-                                        }}
-                                        src={previewImage}
+                        <Card title='Chọn ảnh sản phẩm'>
+                            <Upload
+                                listType='picture-card'
+                                fileList={fileList}
+                                onChange={handleChangeUpLoad}
+                            >
+                                <FaPlus style={{ marginRight: '5px' }} />
+                                Tải lên
+                            </Upload>
+                        </Card>
+                        {
+                            previewImage && (
+                                <Image
+                                    wrapperStyle={{ display: 'none' }}
+                                    preview={{
+                                        visible: previewOpen,
+                                        onVisibleChange: (visible) => setPreviewOpen(visible),
+                                        afterOpenChange: (visible) => !visible && setPreviewIamge('')
+                                    }}
+                                    src={previewImage}
 
-                                    />
-                                )
-                            }
+                                />
+                            )
+                        }
                         <FormItem name='title' label='Tên sản phẩm:' rules={[{ required: true, message: 'Vui lòng nhập tên sản phẩm.' }]}>
                             <Input placeholder='Nhập tên sản phẩm' allowClear maxLength={150} showCount />
                         </FormItem>
@@ -157,7 +198,7 @@ const AddProduct = () => {
                         </Card>
 
                         <Card className='mt-5'>
-                            <Button loading={isLoading} type='primary' onClick={() => form.submit()}>submit</Button>
+                            <Button loading={isLoading} type='primary' onClick={() => form.submit()}>{id ? 'Sửa' : 'Thêm mới'}</Button>
                         </Card>
                     </div>
                 </div>

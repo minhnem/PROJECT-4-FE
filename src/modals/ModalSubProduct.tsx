@@ -30,7 +30,9 @@ const ModalSubProduct = (props: Props) => {
     }
 
     const handleChangeUpload: UploadProps['onChange'] = ({ fileList: newFileList }) => {
-        const items = newFileList.map((file) => ({ ...file, url: file.originFileObj && URL.createObjectURL(file.originFileObj), status: 'done' }))
+        const items = newFileList.map((file) => file.originFileObj
+            ? { ...file, url: file.originFileObj && URL.createObjectURL(file.originFileObj), status: 'done' } 
+            : {...file})
         setFileList(items)
     }
 

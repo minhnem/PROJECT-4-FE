@@ -2,7 +2,7 @@ import { Avatar, Button, message, Modal, Space, Table, Tag, Tooltip, Typography 
 import { ColumnProps } from 'antd/es/table'
 import React, { useEffect, useState } from 'react'
 import handleAPI from '../../apis/handleAPI'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { CategoryComponent, SupplierComponent } from '../../components'
 import { ProductModel, SubProductModel } from '../../models/ProductModel'
 import { MdLibraryAdd } from "react-icons/md";
@@ -22,6 +22,8 @@ const Inventory = () => {
   const [visibleSubProductModel, setVisibleSubProductModel] = useState(false)
   const [productSelected, setProductSelected] = useState<ProductModel>()
 
+  const navigate = useNavigate()
+
   const columns: ColumnProps<ProductModel>[] = [
     {
       key: 'title',
@@ -34,12 +36,10 @@ const Inventory = () => {
       key: 'images',
       dataIndex: 'images',
       title: 'Hình ảnh',
-      width: 250,
+      width: 300,
       render: (imgs: string[]) => imgs.length > 0 && (
-        <Space>
-          <Avatar.Group>
-            {imgs.map((url, index) => (<Avatar key={index} src={url} size={40} style={{border: '1px solid black'}}/>))}
-          </Avatar.Group>
+        <Space>       
+          {imgs.map((url, index) => (<Avatar key={index} src={url} size={40} style={{border: '1px solid black'}}/>))}
         </Space>
       )
     },
@@ -83,7 +83,8 @@ const Inventory = () => {
                 background: `${element.color}`,
                 width: '24px',
                 height: '24px',
-                borderRadius: '50%'
+                borderRadius: '50%',
+                border: '1px solid #534646'
               }}></div>
           ))}
         </Space>
@@ -144,6 +145,9 @@ const Inventory = () => {
         <Button
           type='link'
           icon={<MdEditSquare size={20} className='text-blue-500' />}
+          onClick={() => {
+            navigate(`/inventory/add-new-product?id=${product._id}`)
+          }}
         />
         <Button
           type='link'

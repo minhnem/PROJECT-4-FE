@@ -20,48 +20,48 @@ const SiderComponent = () => {
     const items: MenuItem[] = [
         {
             key: 'dashboard',
-            label: <Link to={'/dashboard'}>Dashboard</Link>,
+            label: <Link to={'/dashboard'}>Trang chủ</Link>,
             icon: <TiHomeOutline size={18} />
         },
 
         {
             key: 'inventories',
-            label: <Link to={'/inventory'}>Inventories</Link>,
+            label: <Link to={'/inventory'}>Kho hàng</Link>,
             icon: <MdOutlineInventory2 size={18} />,
             children: [
                 {
                     key: 'addNew',
-                    label: <Link to={'/inventory'}>Inventory</Link>
+                    label: <Link to={'/inventory'}>Kho hàng</Link>
                 },
                 {
                     key: 'inventory',
-                    label: <Link to={'/inventory/add-new-product'}>Add New Product</Link>
+                    label: <Link to={'/inventory/add-new-product'}>Thêm Sản phẩm</Link>
                 }
             ]
         },
         {
             key: 'category',
-            label: <Link to={'/category'}>Category</Link>,
+            label: <Link to={'/category'}>Danh mục</Link>,
             icon: <BsBarChartSteps size={18}/>
         },
         {
             key: 'reports',
-            label: <Link to={'/reports'}>Reports</Link>,
+            label: <Link to={'/reports'}>Báo cáo</Link>,
             icon: <BsBarChart size={18} />
         },
         {
             key: 'suppliers',
-            label: <Link to={'/suppliers'}>Suppliers</Link>,
+            label: <Link to={'/suppliers'}>Nhà cung cấp</Link>,
             icon: <FaRegCircleUser size={18} />
         },
         {
             key: 'oders',
-            label: <Link to={'/oders'}>Oders</Link>,
+            label: <Link to={'/oders'}>Đơn hàng</Link>,
             icon: <BsBoxSeam size={18} />
         },
         {
             key: 'manage Store',
-            label: <Link to={'/manage-store'}>Manage Store</Link>,
+            label: <Link to={'/manage-store'}>Quản lý cửa hàng</Link>,
             icon: <MdOutlineEventNote size={18} />
         }
     ]
