@@ -1,5 +1,5 @@
-import { Avatar, Button, message, Modal, Space, Table, Tag, Tooltip, Typography } from 'antd'
-import { ColumnProps } from 'antd/es/table'
+import { Avatar, Button, Dropdown, Input, message, Modal, Space, Table, Tag, Tooltip, Typography } from 'antd'
+import { ColumnProps, TableProps } from 'antd/es/table'
 import React, { useEffect, useState } from 'react'
 import handleAPI from '../../apis/handleAPI'
 import { Link, useNavigate } from 'react-router-dom'
@@ -9,9 +9,13 @@ import { MdLibraryAdd } from "react-icons/md";
 import { MdEditSquare } from "react-icons/md";
 import { MdDeleteForever } from "react-icons/md";
 import ModalSubProduct from '../../modals/ModalSubProduct'
+import { FiFilter } from 'react-icons/fi'
+import { replaceName } from '../../utils/repalceName'
 
 const { Title } = Typography
-const {confirm} = Modal
+const { confirm } = Modal
+
+type TableRowSelection<T extends object = object> = TableProps<T>['rowSelection'];
 
 const Inventory = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -21,8 +25,19 @@ const Inventory = () => {
   const [total, setTotal] = useState(0)
   const [visibleSubProductModel, setVisibleSubProductModel] = useState(false)
   const [productSelected, setProductSelected] = useState<ProductModel>()
+  const [selectedRowKeys, setSelectedRowKeys] = useState<any[]>([])
+  const [searchKey, setSearchKey] = useState<string>('')
 
   const navigate = useNavigate()
+
+  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
+    setSelectedRowKeys(newSelectedRowKeys)
+  }
+
+  const rowSelection: TableRowSelection<ProductModel> = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+  }
 
   const columns: ColumnProps<ProductModel>[] = [
     {
@@ -30,7 +45,7 @@ const Inventory = () => {
       dataIndex: 'title',
       title: 'Tên sản phẩm',
       width: 300,
-      render: (item: string) =>  <Link className='text-[#1677ff]' to={'/inventory/product-detail'}>{item}</Link>
+      render: (item: string) => <Link className='text-[#1677ff]' to={'/inventory/product-detail'}>{item}</Link>
     },
     {
       key: 'images',
@@ -38,8 +53,8 @@ const Inventory = () => {
       title: 'Hình ảnh',
       width: 300,
       render: (imgs: string[]) => imgs.length > 0 && (
-        <Space>       
-          {imgs.map((url, index) => (<Avatar key={index} src={url} size={40} style={{border: '1px solid black'}}/>))}
+        <Space>
+          {imgs.map((url, index) => (<Avatar key={index} src={url} size={40} style={{ border: '1px solid black' }} />))}
         </Space>
       )
     },
@@ -56,7 +71,7 @@ const Inventory = () => {
       width: 300,
       render: (ids: string[]) => ids.length > 0 && (
         <Space>
-          {ids.map((id, index) => (<CategoryComponent id={id} key={index}/>))}
+          {ids.map((id, index) => (<CategoryComponent id={id} key={index} />))}
         </Space>
       )
     },
@@ -111,7 +126,7 @@ const Inventory = () => {
       render: (item: SubProductModel[]) => {
         const nums: number[] = []
         item.forEach(element => nums.push(element.price))
-        return nums.length > 0 ? `${Math.min(...nums).toLocaleString()} đ - ${Math.max(...nums).toLocaleString()} đ` : '' 
+        return nums.length > 0 ? `${Math.min(...nums).toLocaleString()} đ - ${Math.max(...nums).toLocaleString()} đ` : ''
       }
     },
     {
@@ -120,7 +135,7 @@ const Inventory = () => {
       title: 'Số lượng tồn kho',
       width: 150,
       render: (item: SubProductModel[]) => {
-        const total = item.reduce((a, b) => a + b.qty ,0)
+        const total = item.reduce((a, b) => a + b.qty, 0)
         return total
       }
     },
@@ -167,6 +182,12 @@ const Inventory = () => {
   ]
 
   useEffect(() => {
+    if(!searchKey) {
+      getProducts()
+    }
+  }, [searchKey])
+
+  useEffect(() => {
     getProducts()
   }, [])
 
@@ -176,7 +197,7 @@ const Inventory = () => {
       const api = `/product?page=${page}&pageSize=${pageSize}`
       const res = await handleAPI(api)
       if (res.data) {
-        setProducts(res.data.products)
+        setProducts(res.data.products.map((item: ProductModel) => ({ ...item, key: item._id })))
         setTotal(res.data.total)
       }
     } catch (error: any) {
@@ -202,10 +223,29 @@ const Inventory = () => {
     }
   }
 
+  const hanleSearchProduct = async () => {
+    const title = replaceName(searchKey)
+    try {
+      setIsLoading(true)
+      const api = `/product?title=${title}&page=${page}&pageSize=${pageSize}`
+      const res = await handleAPI(api)
+      if(res.data) {
+        setProducts(res.data.products.map((item: ProductModel) => ({...item, key: item._id})))
+        setTotal(res.data.title)
+      }
+    } catch (error: any) {
+      message.error(error.message)
+      console.log(error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
 
   return (
     <div>
       <Table
+        rowSelection={rowSelection}
         loading={isLoading}
         dataSource={products}
         bordered
@@ -229,9 +269,43 @@ const Inventory = () => {
               <Title level={4}>Bảng sản phẩm</Title>
             </div>
             <div className='text-right'>
-              <Button type='primary'>
-                <Link to='/inventory/add-new-product'>Thêm mới</Link>
-              </Button>
+              <Space>
+                {
+                  selectedRowKeys.length > 0 ? (
+                    <div>
+                      <span className='text-red-500 font-bold mr-3'>{selectedRowKeys.length} sản phẩm được chọn</span>
+                      <Button
+                        type='primary'
+                        danger
+                        onClick={() => {
+                          confirm({
+                            title: 'Xác nhận',
+                            content: 'Bạn có chắc muốn xóa những sản phẩm được chọn không ?',
+                            onOk: () => {
+                              selectedRowKeys.forEach((id: string) => deleteProduct(id))
+                            }
+                          })
+                        }}
+                      >
+                        Xóa
+                      </Button>
+                    </div>
+                  ) : ''
+                }
+                <Input.Search
+                  value={searchKey}
+                  onChange={(val) => setSearchKey(val.target.value)}
+                  onSearch={hanleSearchProduct}
+                  placeholder='Tìm kiếm'
+                  allowClear 
+                />
+                <Dropdown >
+                  <Button icon={<FiFilter />}>Lọc</Button>
+                </Dropdown>
+                <Button type='primary'>
+                  <Link to='/inventory/add-new-product'>Thêm mới</Link>
+                </Button>
+              </Space>
             </div>
           </div>
         )}
