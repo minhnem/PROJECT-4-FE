@@ -3,7 +3,7 @@ import { ColumnProps, TableProps } from 'antd/es/table'
 import React, { useEffect, useState } from 'react'
 import handleAPI from '../../apis/handleAPI'
 import { Link, useNavigate } from 'react-router-dom'
-import { CategoryComponent, SupplierComponent } from '../../components'
+import { CategoryComponent, FilterProduct, SupplierComponent } from '../../components'
 import { ProductModel, SubProductModel } from '../../models/ProductModel'
 import { MdLibraryAdd } from "react-icons/md";
 import { MdEditSquare } from "react-icons/md";
@@ -241,6 +241,23 @@ const Inventory = () => {
     }
   }
 
+  const handleFilterProduct = async (values: any) => {
+    console.log(values)
+    try {
+      setIsLoading(true)
+      const api = '/product/filter-product'
+      const res: any = await handleAPI(api, values, 'post')
+      message.success(res.message)
+      setProducts(res.data.items)
+      setTotal(res.data.total)
+    } catch (error: any) {
+      console.log(error)
+      message.error(error.message)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
 
   return (
     <div>
@@ -299,7 +316,7 @@ const Inventory = () => {
                   placeholder='Tìm kiếm'
                   allowClear 
                 />
-                <Dropdown >
+                <Dropdown dropdownRender={(menu) => <FilterProduct value={{}} onFilter={(val) => handleFilterProduct(val)}/>}>
                   <Button icon={<FiFilter />}>Lọc</Button>
                 </Dropdown>
                 <Button type='primary'>

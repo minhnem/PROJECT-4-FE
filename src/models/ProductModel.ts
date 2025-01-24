@@ -25,3 +25,8 @@ export interface SubProductModel {
   _id: string
   __v: number
 }
+
+export interface SelectModel {
+  label: string
+  value: string
+}
