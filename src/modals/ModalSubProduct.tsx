@@ -1,7 +1,7 @@
 import { ColorPicker, Form, Input, InputNumber, message, Modal, Upload, UploadProps } from 'antd'
 import { useForm } from 'antd/es/form/Form'
 import FormItem from 'antd/es/form/FormItem'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FaPlus } from "react-icons/fa6";
 import { uploadFile } from '../utils/uploadFile';
 import { ProductModel, SubProductModel } from '../models/ProductModel';
@@ -11,17 +11,32 @@ interface Props {
     visible: boolean,
     onClose: () => void,
     product?: ProductModel,
+    subProduct?: SubProductModel, 
     onAddNew: (val: SubProductModel) => void 
 }
 
 const ModalSubProduct = (props: Props) => {
 
-    const { visible, onClose, product, onAddNew } = props
+    const { visible, onClose, product, onAddNew, subProduct } = props
 
     const [isLoading, setIsLoading] = useState(false)
     const [fileList, setFileList] = useState<any[]>([])
 
     const [form] = useForm()
+
+    useEffect(() => {
+        if(subProduct) {
+            form.setFieldsValue(subProduct)
+            const images = [...fileList]
+            subProduct.images.forEach((url: string) => images.push({
+                uid: `${Math.floor(Math.random() * 1000000)}`,
+                name: url,
+                status: 'done',
+                url,
+            }))
+            setFileList(images)
+        }
+    }, [subProduct])
 
     const handleClose = () => {
         setFileList([])
@@ -42,23 +57,32 @@ const ModalSubProduct = (props: Props) => {
         for(const i in values) {
             data[i] = values[i] ?? ''
         }
-        data.color = values.color.toHexString()
+        if(subProduct?.color) {
+            data.color = subProduct.color
+        } else {
+            data.color = values.color.toHexString()
+        }
         if(fileList.length > 0) {
             const urls: string[] = []
             for(const file of fileList) {
-                const url = await uploadFile(file.originFileObj)
-                urls.push(url)
+                if(file.originFileObj) {
+                    const url = await uploadFile(file.originFileObj)
+                    urls.push(url)
+                } else {
+                    urls.push(file.url)
+                }
             }
             data.images = urls
         }
         data.productId = product?._id
         try {
-            const api = '/product/add-sub-product'
-            const res: any = await handleAPI(api, data, 'post')
+            const api = `/product/${subProduct ? `update-sub-product?id=${subProduct._id}` :'add-sub-product'}`
+            const res: any = await handleAPI(api, data, `${subProduct ? 'put' :'post'}`)
             message.success(res.message)
             onAddNew(res.data)
             setFileList([])
             form.resetFields()
+            handleClose()
         } catch (error: any) {
             message.error(error.message)
             console.log(error)
@@ -71,8 +95,8 @@ const ModalSubProduct = (props: Props) => {
         <Modal
             closable={!isLoading}
             open={visible}
-            title={`Thêm biến thể cho sản phẩm: ${product?.title}`}
-            okText='Thêm'
+            title={subProduct ? 'Sửa biến thể sản phẩm.' : `Thêm biến thể cho sản phẩm: ${product?.title}`}
+            okText={subProduct ? 'Sửa' : 'Thêm'}
             cancelText='Hủy'
             onClose={handleClose}
             onCancel={handleClose}

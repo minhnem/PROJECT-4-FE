@@ -20,6 +20,7 @@ type TableRowSelection<T extends object = object> = TableProps<T>['rowSelection'
 const Inventory = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [products, setProducts] = useState<ProductModel[]>([])
+  const [productsFilter, setProductsFilter] = useState<ProductModel[]>([])
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [total, setTotal] = useState(0)
@@ -42,10 +43,10 @@ const Inventory = () => {
   const columns: ColumnProps<ProductModel>[] = [
     {
       key: 'title',
-      dataIndex: 'title',
+      dataIndex: '',
       title: 'Tên sản phẩm',
       width: 300,
-      render: (item: string) => <Link className='text-[#1677ff]' to={'/inventory/product-detail'}>{item}</Link>
+      render: (item: ProductModel) => <Link className='text-[#1677ff]' to={`/inventory/product-detail?id=${item._id}`}>{item.title}</Link>
     },
     {
       key: 'images',
@@ -54,7 +55,7 @@ const Inventory = () => {
       width: 300,
       render: (imgs: string[]) => imgs.length > 0 && (
         <Space>
-          {imgs.map((url, index) => (<Avatar key={index} src={url} size={40} style={{ border: '1px solid black' }} />))}
+          {imgs.map((url, index) => (<Avatar key={index} src={url} size={50} style={{ border: '1px solid black' }} />))}
         </Space>
       )
     },
@@ -62,7 +63,12 @@ const Inventory = () => {
       key: 'description',
       dataIndex: 'description',
       title: 'Mô tả',
-      width: 350
+      width: 350,
+      render: (desc: string) => <Tooltip style={{width: '320px'}} title={desc}>
+        <div className='text-clamp'>
+          {desc}
+        </div> 
+      </Tooltip>
     },
     {
       key: 'categories',
@@ -248,7 +254,7 @@ const Inventory = () => {
       const api = '/product/filter-product'
       const res: any = await handleAPI(api, values, 'post')
       message.success(res.message)
-      setProducts(res.data.items)
+      setProductsFilter(res.data.items)
       setTotal(res.data.total)
     } catch (error: any) {
       console.log(error)
@@ -264,7 +270,7 @@ const Inventory = () => {
       <Table
         rowSelection={rowSelection}
         loading={isLoading}
-        dataSource={products}
+        dataSource={productsFilter.length > 0 ? productsFilter : products}
         bordered
         columns={columns}
         pagination={{
@@ -313,12 +319,15 @@ const Inventory = () => {
                   value={searchKey}
                   onChange={(val) => setSearchKey(val.target.value)}
                   onSearch={hanleSearchProduct}
-                  placeholder='Tìm kiếm'
+                  placeholder='Nhập tên sản phẩm'
                   allowClear 
                 />
                 <Dropdown dropdownRender={(menu) => <FilterProduct value={{}} onFilter={(val) => handleFilterProduct(val)}/>}>
                   <Button icon={<FiFilter />}>Lọc</Button>
                 </Dropdown>
+                {productsFilter.length > 0 ? <Button danger onClick={() => setProductsFilter([])}>
+                  Hủy lọc
+                </Button> : ''}
                 <Button type='primary'>
                   <Link to='/inventory/add-new-product'>Thêm mới</Link>
                 </Button>
