@@ -1,6 +1,6 @@
-import { Button, Card, Divider, Form, Image, Input, message, Select, TreeSelect, Typography } from 'antd'
+import { Button, Card, Divider, Form, Image, Input, message, Select, Spin, TreeSelect, Typography } from 'antd'
 import FormItem from 'antd/es/form/FormItem'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { ModalCategoty } from '../../modals'
 import { SupplierModel, SupplierOption } from '../../models/SupplierModel'
 import { TreeData } from '../../models/CategoryModel'
@@ -8,9 +8,10 @@ import handleAPI from '../../apis/handleAPI'
 import { replaceName } from '../../utils/repalceName'
 import { getTreevalues } from '../../utils/getTreevalues'
 import Upload, { UploadProps } from 'antd/es/upload'
-import { FaPlus } from "react-icons/fa6";
+import { FaPlus } from 'react-icons/fa6';
 import { uploadFile } from '../../utils/uploadFile'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Editor } from '@tinymce/tinymce-react';
 
 const { Title } = Typography
 
@@ -22,6 +23,9 @@ const AddProduct = () => {
     const [previewOpen, setPreviewOpen] = useState(false)
     const [previewImage, setPreviewIamge] = useState('')
     const [isLoading, setIsLoading] = useState(false)
+    const [content, setContent] = useState('')
+
+    const editorRef = useRef<any>(null)
 
     const navigate = useNavigate()
     const [searchParams] = useSearchParams()
@@ -41,11 +45,14 @@ const AddProduct = () => {
 
     const getData = async () => {
         try {
+            setIsLoading(true)
             await getSuppliers()
             await getCategories()
         } catch (error: any) {
             message.error(error.message)
             console.log(error)
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -70,7 +77,8 @@ const AddProduct = () => {
             const item = res.data
             if (item) {
                 form.setFieldsValue(item)
-                if(item.images && item.images.length > 0) {
+                setContent(item.content)
+                if (item.images && item.images.length > 0) {
                     const images = [...fileList]
                     item.images.forEach((url: string) => images.push({
                         uid: `${Math.floor(Math.random() * 100000)}`,
@@ -96,18 +104,20 @@ const AddProduct = () => {
 
     const handleAddProduct = async (values: any) => {
         setIsLoading(true)
+        const content = editorRef.current.getContent()
         const data: any = {}
         for (const i in values) {
             data[i] = values[i] ?? ''
         }
+        data.content = content
         data.slug = replaceName(values.title)
         if (fileList.length > 0) {
             const urls: string[] = []
             for (const file of fileList) {
-                if(file.originFileObj) {
+                if (file.originFileObj) {
                     const url = await uploadFile(file.originFileObj)
                     urls.push(url)
-                }else {
+                } else {
                     urls.push(file.url)
                 }
             }
@@ -130,86 +140,106 @@ const AddProduct = () => {
 
     return (
         <div>
-            <Title level={4}>{id ? 'Sửa sản phẩm' : 'Thêm mới sản phẩm'}</Title>
-            <Form form={form} size='large' layout='vertical' onFinish={handleAddProduct} disabled={isLoading}>
-                <div className='grid grid-cols-12 gap-10'>
-                    <div className='col-span-8'>
-                        <Card title='Chọn ảnh sản phẩm'>
-                            <Upload
-                                listType='picture-card'
-                                fileList={fileList}
-                                onChange={handleChangeUpLoad}
-                            >
-                                <FaPlus style={{ marginRight: '5px' }} />
-                                Tải lên
-                            </Upload>
-                        </Card>
-                        {
-                            previewImage && (
-                                <Image
-                                    wrapperStyle={{ display: 'none' }}
-                                    preview={{
-                                        visible: previewOpen,
-                                        onVisibleChange: (visible) => setPreviewOpen(visible),
-                                        afterOpenChange: (visible) => !visible && setPreviewIamge('')
-                                    }}
-                                    src={previewImage}
+            {isLoading ? (<Spin></Spin>) : (
+                <div>
+                    <Title level={4}>{id ? 'Sửa sản phẩm' : 'Thêm mới sản phẩm'}</Title>
+                    <Form form={form} size='large' layout='vertical' onFinish={handleAddProduct} disabled={isLoading}>
+                        <div className='grid grid-cols-12 gap-10'>
+                            <div className='col-span-8'>
+                                <Card title='Chọn ảnh sản phẩm'>
+                                    <Upload
+                                        listType='picture-card'
+                                        fileList={fileList}
+                                        onChange={handleChangeUpLoad}
+                                    >
+                                        <FaPlus style={{ marginRight: '5px' }} />
+                                        Tải lên
+                                    </Upload>
+                                </Card>
+                                {
+                                    previewImage && (
+                                        <Image
+                                            wrapperStyle={{ display: 'none' }}
+                                            preview={{
+                                                visible: previewOpen,
+                                                onVisibleChange: (visible) => setPreviewOpen(visible),
+                                                afterOpenChange: (visible) => !visible && setPreviewIamge('')
+                                            }}
+                                            src={previewImage}
 
-                                />
-                            )
-                        }
-                        <FormItem name='title' label='Tên sản phẩm:' rules={[{ required: true, message: 'Vui lòng nhập tên sản phẩm.' }]}>
-                            <Input placeholder='Nhập tên sản phẩm' allowClear maxLength={150} showCount />
-                        </FormItem>
-                        <FormItem name='description' label='Mô tả sản phẩm:'>
-                            <Input.TextArea maxLength={1000} showCount allowClear />
-                        </FormItem>
-                    </div>
-                    <div className='col-span-4' >
-                        <Card title='Danh mục'>
-                            <FormItem name='categories' rules={[{ required: true, message: 'Vui lòng chọn danh mục.' }]}>
-                                <TreeSelect
-                                    treeData={categories}
-                                    multiple
-                                    dropdownRender={(menu) => (
-                                        <>
-                                            {menu}
-                                            <Divider className='mb-1' />
-                                            <Button
-                                                className='my-2'
-                                                onClick={() => setIsVisibleModalCategory(true)}
-                                            >
-                                                Thêm mới
-                                            </Button>
-                                        </>
-                                    )}
-                                />
-                            </FormItem>
-                        </Card>
+                                        />
+                                    )
+                                }
+                                <FormItem name='title' label='Tên sản phẩm:' rules={[{ required: true, message: 'Vui lòng nhập tên sản phẩm.' }]}>
+                                    <Input placeholder='Nhập tên sản phẩm' allowClear maxLength={150} showCount />
+                                </FormItem>
+                                <FormItem name='description' label='Mô tả sản phẩm:'>
+                                    <Input.TextArea maxLength={1000} showCount allowClear />
+                                </FormItem>
+                                <div>
+                                    <Editor
+                                        disabled={isLoading}
+                                        apiKey='coe6w4dimiz7zarp3pxo9vcu389puehn385e39rkz6ywuv32'
+                                        onInit={(evt, editor) => (editorRef.current = editor)}
+                                        initialValue={content !== '' ? content : ''}
+                                        init={{
+                                            plugins: ['autolink', 'lists', 'link', 'image', 'media', 'table', 'wordcount'],
+                                            toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright alignjustify | link image media | numlist bullist | removeformat',
+                                            mergetags_list: [
+                                                { value: 'First.Name', title: 'First Name' },
+                                                { value: 'Email', title: 'Email' },
+                                            ],
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                            <div className='col-span-4' >
+                                <Card title='Danh mục'>
+                                    <FormItem name='categories' rules={[{ required: true, message: 'Vui lòng chọn danh mục.' }]}>
+                                        <TreeSelect
+                                            treeData={categories}
+                                            multiple
+                                            dropdownRender={(menu) => (
+                                                <>
+                                                    {menu}
+                                                    <Divider className='mb-1' />
+                                                    <Button
+                                                        className='my-2'
+                                                        onClick={() => setIsVisibleModalCategory(true)}
+                                                    >
+                                                        Thêm mới
+                                                    </Button>
+                                                </>
+                                            )}
+                                        />
+                                    </FormItem>
+                                </Card>
 
-                        <Card className='mt-5' title='Nhà cung cấp'>
-                            <FormItem name='supplier' rules={[{ required: true, message: 'Vui lòng chọn nhà cung cấp.' }]}>
-                                <Select
-                                    showSearch
-                                    options={supplierOptions}
-                                    optionFilterProp='label'
-                                    filterOption={(input, option) => replaceName(option?.label ? option.label : '').includes(replaceName(input))} />
-                            </FormItem>
-                        </Card>
+                                <Card className='mt-5' title='Nhà cung cấp'>
+                                    <FormItem name='supplier' rules={[{ required: true, message: 'Vui lòng chọn nhà cung cấp.' }]}>
+                                        <Select
+                                            showSearch
+                                            options={supplierOptions}
+                                            optionFilterProp='label'
+                                            filterOption={(input, option) => replaceName(option?.label ? option.label : '').includes(replaceName(input))} />
+                                    </FormItem>
+                                </Card>
 
-                        <Card className='mt-5'>
-                            <Button loading={isLoading} type='primary' onClick={() => form.submit()}>{id ? 'Sửa' : 'Thêm mới'}</Button>
-                        </Card>
-                    </div>
+                                <Card className='mt-5'>
+                                    <Button loading={isLoading} type='primary' onClick={() => form.submit()}>{id ? 'Sửa' : 'Thêm mới'}</Button>
+                                </Card>
+                            </div>
+                        </div>
+
+                        <ModalCategoty
+                            visible={isVisibleModalCategory}
+                            onClose={() => setIsVisibleModalCategory(false)}
+                            values={categories}
+                            onAddNew={async () => await getCategories()}
+                        />
+                    </Form>
                 </div>
-
-                <ModalCategoty
-                    visible={isVisibleModalCategory}
-                    onClose={() => setIsVisibleModalCategory(false)}
-                    values={categories}
-                    onAddNew={async () => await getCategories()}
-                />
-            </Form>
+            )}
         </div>
     )
 }

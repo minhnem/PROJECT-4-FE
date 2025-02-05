@@ -2,6 +2,7 @@ export interface ProductModel {
     title: string
     slug: string
     description: string
+    content: string
     categories: string[]
     supplier: string
     images: string[]
