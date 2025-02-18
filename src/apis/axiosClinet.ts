@@ -3,6 +3,7 @@ import queryString from "query-string";
 import { localDataNames } from "../constants/appInfos";
 
 const baseURL = "http://localhost:3001"
+const baseURLProduction = "https://project-4-server.onrender.com"
 
 const getAccessToken = () => {
     const res = localStorage.getItem(localDataNames.authData)
@@ -10,7 +11,7 @@ const getAccessToken = () => {
 }
 
 const axiosClient = axios.create({
-    baseURL,
+    baseURL: baseURL,
     paramsSerializer: (params) => queryString.stringify(params)
 })
 
