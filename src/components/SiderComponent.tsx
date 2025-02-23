@@ -11,6 +11,7 @@ import { BsBarChartSteps } from "react-icons/bs";
 import { BsBoxSeam } from "react-icons/bs";
 import { appInfo } from '../constants/appInfos';
 import { colors } from '../constants/colors';
+import { PiSealPercent } from "react-icons/pi";
 
 type MenuItem = Required<MenuProps>['items'][number]
 const { Sider } = Layout
@@ -63,6 +64,11 @@ const SiderComponent = () => {
             key: 'manage Store',
             label: <Link to={'/manage-store'}>Quản lý cửa hàng</Link>,
             icon: <MdOutlineEventNote size={18} />
+        },
+        {
+            key: 'promotion',
+            label: <Link to={'/promotion'}>Quản lý giảm giá/khuyến mại</Link>,
+            icon: <PiSealPercent size={18} />
         }
     ]
     return (

@@ -128,9 +128,14 @@ const ModalSubProduct = (props: Props) => {
                 <FormItem name='color' label='Chọn màu sắc:'>
                     <ColorPicker format='hex' />
                 </FormItem>
-                <FormItem name='size' label='Nhập kích cỡ:' rules={[{ required: true, message: 'Vui lòng nhập kích cỡ cho sản phẩm.' }]}>
-                    <Input allowClear />
-                </FormItem>
+                <div className='grid grid-cols-2 gap-5'>
+                    <FormItem name='size' label='Nhập kích cỡ:' rules={[{ required: true, message: 'Vui lòng nhập kích cỡ cho sản phẩm.' }]}>
+                        <Input allowClear />
+                    </FormItem>
+                    <FormItem name='discount' label='Giảm giá %:'>
+                        <Input allowClear />
+                    </FormItem>
+                </div>
                 <div className='grid grid-cols-2 gap-5'>
                     <FormItem name='qty' label='Nhập số lượng:' rules={[{ required: true, message: 'Vui lòng nhập số lượng.' }]}>
                         <InputNumber style={{ width: '100%' }} />

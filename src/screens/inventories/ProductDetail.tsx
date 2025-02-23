@@ -60,6 +60,12 @@ const ProductDetail = () => {
       dataIndex: 'qty'
     },
     {
+      key: 'discount',
+      title: 'Giảm giá',
+      dataIndex: 'discount',
+      render: (discount: number) => discount ? `${discount} %` : ''
+    },
+    {
       key: 'action',
       fixed: true,
       align: 'center',
