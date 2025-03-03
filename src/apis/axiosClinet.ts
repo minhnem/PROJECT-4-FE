@@ -11,7 +11,7 @@ const getAccessToken = () => {
 }
 
 const axiosClient = axios.create({
-    baseURL: baseURL,
+    baseURL: baseURLProduction,
     paramsSerializer: (params) => queryString.stringify(params)
 })
 
